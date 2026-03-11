@@ -17,6 +17,7 @@ export class TickerRepository {
         return ticket
     }
 
+    // função get para mostrar todas as intâncias ordenadas por data de criação
     async listAll (): Promise<TicketRecord[]> {
         const tickets = await prisma.ticket.findMany({
             orderBy: {
@@ -26,6 +27,7 @@ export class TickerRepository {
         return tickets
     }
 
+    // função get para mostrar uma intância específica usando id
     async findById (id: string): Promise<TicketRecord | null> {
         const ticket = await prisma.ticket.findUnique({
             where: {id}
@@ -33,7 +35,36 @@ export class TickerRepository {
         return ticket
     }
 
+    // função para atualizar o status do ticket
+    async updateStatus (id: string, data: UpdateTicketStatusBody): Promise<TicketRecord> {
+        const ticket = await prisma.ticket.update({
+            where: {id},
+            data: {
+                status: data.status
+            }
+        })
+        return ticket
+    }
 
+    // função para atualizar a prioridade do ticket
+    async updatePriority (id: string, data: UpdateTicketPriorityBody) : Promise<TicketRecord> {
+        const ticket = await prisma.ticket.update({
+            where: {id},
+            data: {
+                priority: data.priority
+            }
+        })
+        return ticket
+    }
 
-
+    // função para colocar responsável no ticket
+    async assignResponsible (id: string, data: AssignTicketBody): Promise<TicketRecord> {
+        const ticket = await prisma.ticket.update({
+            where: {id},
+            data: {
+                assignedToId: data.assignedToId
+            }
+        })
+        return ticket
+    }
 }
