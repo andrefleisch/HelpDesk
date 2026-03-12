@@ -14,24 +14,23 @@ export class CommentController {
     async create(req: Request, res: Response): Promise<Response> {
         try {
             const body = createCommentSchema.parse(req.body)
-            if (typeof req.params.ticketId === "string") {
-                const comment = await this.commentService.createComment(req.params.ticketId, body)
-                return res.status(201).json(comment)
-            } else {
-                return res.status(400).json({error: "Não foi possivel identificar o ticketId"})
-            }
-        } catch (error) {
-            if (error instanceof ZodError) {
+            const params = commentParamsSchema.parse(req.params)
+
+            const comment = await this.commentService.createComment(params.ticketId, body)
+
+            return res.status(201).json(comment)
+            } catch (error) {
+                if (error instanceof ZodError) {
+                    return res.status(400).json({
+                        message: "Dados de entrada inválidos",
+                        errors: error.flatten().fieldErrors
+                    })
+                }
+    
                 return res.status(400).json({
-                    message: "Dados de entrada inválidos",
-                    errors: error.flatten().fieldErrors
+                    message: error instanceof Error ? error.message : "Erro ao criar comentário"
                 })
             }
-
-            return res.status(400).json({
-                message: error instanceof Error ? error.message : "Erro ao criar comentário"
-            })
-        }
     }
 
     // função para listar todos os comentários de um ticket específico, validando o id do ticket de entrada com o schema e usando a função do service para obter os comentários, retornando-os na resposta
@@ -49,7 +48,7 @@ export class CommentController {
                 })
             }
 
-            return res.status(500).json({
+            return res.status(400).json({
                 message: error instanceof Error ? error.message : "Erro ao listar comentários"
             })
         }
