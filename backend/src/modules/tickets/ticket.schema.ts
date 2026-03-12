@@ -16,8 +16,12 @@ export const ticketParamsSchema = z.object({
     id: z.string().trim().min(1, "id é obrigatório")
 })
 
-export const updateTicketParamsSchema = z.object({
+export const updateTicketPrioritySchema = z.object({
     priority: ticketPrioritySchema
+})
+
+export const updateTicketStatusSchema = z.object({
+    status: ticketStatusSchema
 })
 
 export const assignTicketSchema = z.object({
