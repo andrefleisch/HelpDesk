@@ -22,7 +22,6 @@ export class CommentRepository {
                 createdAt: "asc"
             }
         })
-
         return commentsByTicket
     }
 
