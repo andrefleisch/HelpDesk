@@ -1,7 +1,7 @@
 import {prisma} from "../../prisma/client"
 import type {AssignTicketBody, CreateTicketBody, UpdateTicketPriorityBody, UpdateTicketStatusBody, TicketRecord} from "./ticket.types"
 
-export class TickerRepository {
+export class TicketRepository {
     // cria um novo ticket usando função do prisma
     async create (data: CreateTicketBody): Promise<TicketRecord> {
         const ticket = await prisma.ticket.create({
