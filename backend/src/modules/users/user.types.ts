@@ -21,7 +21,7 @@ export type UserRecord = {
 }
 
 // igual UserRecord mas com passwordHash, pois esse type será usado para colocar a senha ja criptografada no banco
-export type UserInput = {
+export type CreateUserInput = {
     name: string;
     email: string;
     passwordHash: string;
@@ -32,6 +32,6 @@ export type User = {
     id: string;
     name: string;
     email: string;
-    createdAt: string;
-    updatedAt: string
+    createdAt: Date;
+    updatedAt: Date;
 }
