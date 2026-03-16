@@ -20,6 +20,14 @@ export type UserRecord = {
     updatedAt: Date;
 }
 
+// igual UserRecord mas com passwordHash, pois esse type será usado para colocar a senha ja criptografada no banco
+export type UserInput = {
+    name: string;
+    email: string;
+    passwordHash: string;
+}
+
+// type User é o que será retornado pro cliente, sem o passwordHash
 export type User = {
     id: string;
     name: string;
