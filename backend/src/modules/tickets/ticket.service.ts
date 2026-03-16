@@ -1,7 +1,6 @@
 import type {AssignTicketBody, CreateTicketBody, TicketRecord, UpdateTicketPriorityBody, UpdateTicketStatusBody} from "./ticket.types"
 import {TicketRepository} from "./ticket.repository"
 import {prisma} from "../../prisma/client"
-import { Ticket } from "@prisma/client"
 
 export class TicketService {
     // service deve usar repository
