@@ -8,7 +8,8 @@ export class UserRepository {
             data: {
                 name: data.name,
                 email: data.email,
-                passwordHash: data.passwordHash 
+                passwordHash: data.passwordHash,
+                role: data.role
             }
         })
         return user

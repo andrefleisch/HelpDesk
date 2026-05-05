@@ -1,9 +1,12 @@
 import {z} from "zod"
 
+export const userRoleSchema = z.enum(["USER", "AGENT", "ADMIN"])
+
 export const createUserSchema = z.object({
     name: z.string().trim().min(1, "Nome é obrigatório"),
     email: z.string().trim().email("Email inválido"),
-    password: z.string().trim().min(6, "A senha deve conter no mínimo 6 caracteres")
+    password: z.string().trim().min(6, "A senha deve conter no mínimo 6 caracteres"),
+    role: userRoleSchema.optional()
 })
 
 export const userParamsSchema = z.object({
