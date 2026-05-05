@@ -17,6 +17,7 @@ export class UserService {
           id: user.id,
           name: user.name,
           email: user.email,
+          role: user.role,
           createdAt: user.createdAt,
           updatedAt: user.updatedAt,
         };
@@ -35,7 +36,8 @@ export class UserService {
         const userToCreate: CreateUserInput = {
             name: data.name,
             email: data.email,
-            passwordHash
+            passwordHash,
+            role: data.role
         } 
 
         const createdUser = await this.userRepository.create(userToCreate)
@@ -61,4 +63,3 @@ export class UserService {
         return users.map(user => this.toUserResponse(user))
     }
 }
-

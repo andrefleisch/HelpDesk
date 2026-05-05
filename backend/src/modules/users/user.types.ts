@@ -3,7 +3,11 @@ export type CreateUserBody = {
     name: string;
     email: string;
     password: string;
+    role?: UserRole;
 }
+
+// tipos possíveis de papel do usuário no sistema
+export type UserRole = "USER" | "AGENT" | "ADMIN";
 
 export type UserParams = {
     id: string;
@@ -16,6 +20,7 @@ export type UserRecord = {
     name: string;
     email: string;
     passwordHash: string;
+    role: UserRole;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -25,6 +30,7 @@ export type CreateUserInput = {
     name: string;
     email: string;
     passwordHash: string;
+    role?: UserRole;
 }
 
 // type User é o que será retornado pro cliente, sem o passwordHash
@@ -32,6 +38,7 @@ export type User = {
     id: string;
     name: string;
     email: string;
+    role: UserRole;
     createdAt: Date;
     updatedAt: Date;
 }
