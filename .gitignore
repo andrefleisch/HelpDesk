@@ -3,3 +3,9 @@ dist/
 .env
 .DS_Store
 coverage/
+AGENTS.md
+diagramaFluxo.md
+prova.md
+estudo-backend.md
+.postman/
+postman/
