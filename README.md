@@ -133,6 +133,14 @@ npm run seed
 
 Cria ou atualiza o usuario admin inicial.
 
+```bash
+npm test
+```
+
+Roda os testes automatizados do backend.
+
+Os testes atuais sao testes de integracao HTTP, entao precisam do PostgreSQL rodando e do `DATABASE_URL` configurado no `.env`.
+
 ## Usuario admin inicial
 
 O seed cria o seguinte usuario:
