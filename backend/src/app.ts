@@ -4,6 +4,7 @@ import {authRoutes} from "./modules/auth/auth.routes"
 import {commentRoutes} from "./modules/comments/comment.routes"
 import {ticketRoutes} from "./modules/tickets/ticket.routes"
 import {userRoutes} from "./modules/users/user.routes"
+import {errorMiddleware} from "./middlewares/error.middleware"
 
 export const app = express()
 
@@ -19,5 +20,4 @@ app.get("/health", (_req, res) => {
     res.status(200).json({message: "API Funcionando"})
 })
 
-
-
+app.use(errorMiddleware)
