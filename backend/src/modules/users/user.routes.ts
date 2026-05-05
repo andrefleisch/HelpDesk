@@ -10,8 +10,8 @@ const userController = new UserController()
 userRoutes.use(authMiddleware)
 userRoutes.use(roleMiddleware(["ADMIN"]))
 
-userRoutes.post("/", (req, res) => userController.create(req, res))
-userRoutes.get("/", (req, res) => userController.findMany(req, res))
-userRoutes.get("/:id", (req, res) => userController.findById(req, res))
+userRoutes.post("/", (req, res, next) => userController.create(req, res, next))
+userRoutes.get("/", (req, res, next) => userController.findMany(req, res, next))
+userRoutes.get("/:id", (req, res, next) => userController.findById(req, res, next))
 
 export {userRoutes}

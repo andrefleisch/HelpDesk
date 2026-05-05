@@ -1,6 +1,7 @@
 import type {AssignTicketBody, CreateTicketBody, TicketRecord, UpdateTicketPriorityBody, UpdateTicketStatusBody} from "./ticket.types"
 import {TicketRepository} from "./ticket.repository"
 import {prisma} from "../../prisma/client"
+import {AppError} from "../../errors/AppError"
 
 export class TicketService {
     // service deve usar repository
@@ -18,7 +19,7 @@ export class TicketService {
         })
 
         if (!createdByUser) {
-            throw new Error("Usuário criador do ticket não encontrado")
+            throw new AppError("Usuário criador do ticket não encontrado", 404)
         }
 
         if (data.assignedToId) {
@@ -26,8 +27,8 @@ export class TicketService {
                 where: {id: data.assignedToId}
             })
 
-            if(!assignedUser) {
-                throw new Error("Usuário atribuído ao ticket não encontrado")
+            if (!assignedUser) {
+                throw new AppError("Usuário atribuído ao ticket não encontrado", 404)
             }
         }
         return this.ticketRepository.create(data)
@@ -43,18 +44,18 @@ export class TicketService {
         const ticket = await this.ticketRepository.findById(id)
 
         if (!ticket) {
-            throw new Error("Ticket não encontrado")
+            throw new AppError("Ticket não encontrado", 404)
         }
 
         return ticket
     }
 
     // função para atualizar o status do ticket, usando função do repository e verificando se o ticket existe
-    async updateTicketStatus(id:string, data: UpdateTicketStatusBody): Promise<TicketRecord> {
+    async updateTicketStatus(id: string, data: UpdateTicketStatusBody): Promise<TicketRecord> {
         const existingTicket = await this.ticketRepository.findById(id)
 
         if (!existingTicket) {
-            throw new Error("Ticket não encontrado")
+            throw new AppError("Ticket não encontrado", 404)
         }
 
         return this.ticketRepository.updateStatus(id, data)
@@ -65,7 +66,7 @@ export class TicketService {
         const existingTicket = await this.ticketRepository.findById(id)
 
         if (!existingTicket) {
-            throw new Error("Ticket não encontrado")
+            throw new AppError("Ticket não encontrado", 404)
         }
 
         return this.ticketRepository.updatePriority(id, data)
@@ -76,7 +77,7 @@ export class TicketService {
         const existingTicket = await this.ticketRepository.findById(id)
 
         if (!existingTicket) {
-            throw new Error("Ticket não encontrado")
+            throw new AppError("Ticket não encontrado", 404)
         }
 
         const assignedUser = await prisma.user.findUnique({
@@ -84,13 +85,9 @@ export class TicketService {
         })
 
         if (!assignedUser) {
-            throw new Error("Usuário atribuído ao ticket não encontrado")
+            throw new AppError("Usuário atribuído ao ticket não encontrado", 404)
         }
 
         return this.ticketRepository.assignResponsible(id, data)
     }
-
-
-   
 }
-

@@ -1,6 +1,7 @@
 import { UserRepository } from "./user.repository";
 import { CreateUserBody, CreateUserInput, UserRecord, User } from "./user.types";
 import bcrypt from "bcryptjs"
+import { AppError } from "../../errors/AppError";
 
 export class UserService {
     // service deve usar repository
@@ -28,7 +29,7 @@ export class UserService {
         const existingUser = await this.userRepository.findByEmail(data.email)
 
         if (existingUser) {
-            throw new Error("Email já cadastrado")
+            throw new AppError("Email já cadastrado", 409)
         }
 
         const passwordHash = await bcrypt.hash(data.password, 10)
@@ -50,7 +51,7 @@ export class UserService {
         const user = await this.userRepository.findById(id)
 
         if (!user) {
-            throw new Error("Usuário não encontrado")
+            throw new AppError("Usuário não encontrado", 404)
         }
 
         return this.toUserResponse(user)

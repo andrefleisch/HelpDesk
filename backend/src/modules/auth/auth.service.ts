@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken"
 import {AuthRepository} from "./auth.repository"
 import type {AuthUserResponse, LoginInput, LoginResponse, RegisterInput} from "./auth.types"
 import type {CreateUserInput, UserRecord} from "../users/user.types"
+import { AppError } from "../../errors/AppError"
 
 export class AuthService {
     // service deve usar repository
@@ -44,7 +45,7 @@ export class AuthService {
         const existingUser = await this.authRepository.findUserByEmail(data.email)
 
         if (existingUser) {
-            throw new Error("Email já cadastrado")
+            throw new AppError("Email já cadastrado", 409)
         }
 
         const passwordHash = await bcrypt.hash(data.password, 10)
@@ -68,13 +69,13 @@ export class AuthService {
         const user = await this.authRepository.findUserByEmail(data.email)
 
         if (!user) {
-            throw new Error("Email ou senha inválidos")
+            throw new AppError("Email ou senha inválidos", 401)
         }
 
         const isPasswordValid = await bcrypt.compare(data.password, user.passwordHash)
 
         if (!isPasswordValid) {
-            throw new Error("Email ou senha inválidos")
+            throw new AppError("Email ou senha inválidos", 401)
         }
 
         return {

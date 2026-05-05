@@ -1,3 +1,4 @@
+import { AppError } from "../../errors/AppError"
 import type {CreateCommentBody, CommentRecord} from "./comment.types"
 import {CommentRepository} from "./comment.repository"
 import {prisma} from "../../prisma/client"
@@ -22,11 +23,11 @@ export class CommentService {
         })
 
         if (!authorUser) {
-            throw new Error("Usuário autor do comentário não encontrado")
+            throw new AppError("Usuário autor do comentário não encontrado", 404)
         }
         
         if (!ticket) {
-            throw new Error("Ticket não encontrado")
+            throw new AppError("Ticket não encontrado", 404)
         }
 
         return this.commentRepository.create(ticketId, data)
@@ -39,7 +40,7 @@ export class CommentService {
         })
 
         if (!ticket) {
-            throw new Error("Ticket não encontrado")
+            throw new AppError("Ticket não encontrado", 404)
         }
 
         return this.commentRepository.listAll(ticketId)

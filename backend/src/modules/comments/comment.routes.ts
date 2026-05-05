@@ -8,8 +8,8 @@ const commentController = new CommentController()
 // middleware para proteger as rotas de comentários, verificando se o usuário está autenticado
 commentRoutes.use(authMiddleware)
 
-commentRoutes.post("/:ticketId/comments", (req, res) => commentController.create(req, res))
-commentRoutes.get("/:ticketId/comments", (req, res) => commentController.findByTicketId(req, res))
+commentRoutes.post("/:ticketId/comments", (req, res, next) => commentController.create(req, res, next))
+commentRoutes.get("/:ticketId/comments", (req, res, next) => commentController.findByTicketId(req, res, next))
 
 export {commentRoutes}
 
