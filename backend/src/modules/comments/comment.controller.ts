@@ -16,7 +16,16 @@ export class CommentController {
             const body = createCommentSchema.parse(req.body)
             const params = commentParamsSchema.parse(req.params)
 
-            const comment = await this.commentService.createComment(params.ticketId, body)
+            if (!req.user) {
+                return res.status(401).json({
+                    message: "Usuário não autenticado"
+                })
+            }
+
+            const comment = await this.commentService.createComment(params.ticketId, {
+                ...body,
+                authorId: req.user.id
+            })
 
             return res.status(201).json(comment)
             } catch (error) {

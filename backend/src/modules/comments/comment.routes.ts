@@ -1,8 +1,12 @@
 import {Router} from "express"
+import {authMiddleware} from "../../middlewares/auth.middleware"
 import { CommentController } from "./comment.controller"
 
 const commentRoutes = Router()
 const commentController = new CommentController()
+
+// middleware para proteger as rotas de comentários, verificando se o usuário está autenticado
+commentRoutes.use(authMiddleware)
 
 commentRoutes.post("/:ticketId/comments", (req, res) => commentController.create(req, res))
 commentRoutes.get("/:ticketId/comments", (req, res) => commentController.findByTicketId(req, res))
