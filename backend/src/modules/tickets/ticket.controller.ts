@@ -16,7 +16,17 @@ export class TicketController {
     async create(req: Request, res: Response): Promise<Response> {
         try {
             const body = createTicketSchema.parse(req.body)
-            const ticket = await this.ticketService.createTicket(body)
+
+            if (!req.user) {
+                return res.status(401).json({
+                    message: "Usuário não autenticado"
+                })
+            }
+
+            const ticket = await this.ticketService.createTicket({
+                ...body,
+                createdById: req.user.id
+            })
 
             return res.status(201).json(ticket)
         } catch (error) {

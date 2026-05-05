@@ -8,7 +8,6 @@ export const createTicketSchema = z.object({
     title: z.string().trim().min(1, "Título é obrigatório"),
     description: z.string().trim().min(1, "Descrição é obrigatória"),
     priority: ticketPrioritySchema,
-    createdById: z.string().trim().min(1, "createdById é obrigatório"),
     assignedToId: z.string().trim().min(1).optional().nullable(),
 })
 
