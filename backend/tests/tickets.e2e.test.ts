@@ -31,15 +31,21 @@ function generateTestToken(user: Awaited<ReturnType<typeof createTestUser>>) {
     })
 }
 
-// função para criar ticket direto no banco antes de testar rotas de busca e atualização
-async function createTestTicket(createdById: string, status: "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CANCELED" = "OPEN") {
+// função para criar ticket direto no banco antes de testar rotas de busca, filtros e atualização
+async function createTestTicket(
+    createdById: string,
+    status: "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CANCELED" = "OPEN",
+    priority: "LOW" | "MEDIUM" | "HIGH" = "MEDIUM",
+    assignedToId?: string | null
+) {
     return prisma.ticket.create({
         data: {
             title: "Ticket de teste",
             description: "Ticket criado para teste automatizado",
             status,
-            priority: "MEDIUM",
-            createdById
+            priority,
+            createdById,
+            assignedToId: assignedToId ?? null
         }
     })
 }
@@ -114,8 +120,79 @@ describe("Tickets HTTP", () => {
             .set("Authorization", `Bearer ${token}`)
 
         expect(response.status).toBe(200)
-        expect(Array.isArray(response.body)).toBe(true)
-        expect(response.body.length).toBeGreaterThanOrEqual(1)
+        expect(Array.isArray(response.body.data)).toBe(true)
+        expect(response.body.data.length).toBeGreaterThanOrEqual(1)
+        expect(response.body.meta).toMatchObject({
+            page: 1,
+            limit: 10
+        })
+        expect(response.body.meta.total).toBeGreaterThanOrEqual(1)
+        expect(response.body.meta.totalPages).toBeGreaterThanOrEqual(1)
+    })
+
+    it("deve filtrar tickets por status e prioridade", async () => {
+        const user = await createTestUser("USER", "test-ticket-filter@email.com")
+        const token = generateTestToken(user)
+        const filteredTicket = await createTestTicket(user.id, "OPEN", "HIGH")
+
+        await createTestTicket(user.id, "RESOLVED", "HIGH")
+        await createTestTicket(user.id, "OPEN", "LOW")
+
+        const response = await request(app)
+            .get(`/tickets?status=OPEN&priority=HIGH&createdById=${user.id}`)
+            .set("Authorization", `Bearer ${token}`)
+
+        expect(response.status).toBe(200)
+        expect(Array.isArray(response.body.data)).toBe(true)
+        expect(response.body.data).toHaveLength(1)
+        expect(response.body.data[0]).toMatchObject({
+            id: filteredTicket.id,
+            status: "OPEN",
+            priority: "HIGH"
+        })
+        expect(response.body.meta).toMatchObject({
+            page: 1,
+            limit: 10,
+            total: 1,
+            totalPages: 1
+        })
+    })
+
+    it("deve paginar tickets usando page e limit", async () => {
+        const user = await createTestUser("USER", "test-ticket-pagination@email.com")
+        const token = generateTestToken(user)
+
+        await createTestTicket(user.id)
+        await createTestTicket(user.id)
+        await createTestTicket(user.id)
+
+        const response = await request(app)
+            .get(`/tickets?createdById=${user.id}&page=2&limit=2`)
+            .set("Authorization", `Bearer ${token}`)
+
+        expect(response.status).toBe(200)
+        expect(Array.isArray(response.body.data)).toBe(true)
+        expect(response.body.data).toHaveLength(1)
+        expect(response.body.meta).toEqual({
+            page: 2,
+            limit: 2,
+            total: 3,
+            totalPages: 2
+        })
+    })
+
+    it("deve retornar 400 quando query params de paginação forem inválidos", async () => {
+        const user = await createTestUser("USER", "test-ticket-invalid-pagination@email.com")
+        const token = generateTestToken(user)
+
+        const response = await request(app)
+            .get("/tickets?page=0&limit=101")
+            .set("Authorization", `Bearer ${token}`)
+
+        expect(response.status).toBe(400)
+        expect(response.body.message).toBe("Dados de entrada inválidos")
+        expect(response.body.errors).toHaveProperty("page")
+        expect(response.body.errors).toHaveProperty("limit")
     })
 
     it("deve buscar ticket existente por id", async () => {

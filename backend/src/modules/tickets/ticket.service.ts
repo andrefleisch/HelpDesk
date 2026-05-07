@@ -1,4 +1,4 @@
-import type {AssignTicketBody, CreateTicketBody, TicketRecord, UpdateTicketPriorityBody, UpdateTicketStatusBody} from "./ticket.types"
+import type {AssignTicketBody, CreateTicketBody, ListTicketsQuery, PaginatedTicketsResponse, TicketRecord, UpdateTicketPriorityBody, UpdateTicketStatusBody} from "./ticket.types"
 import {TicketRepository} from "./ticket.repository"
 import {prisma} from "../../prisma/client"
 import {AppError} from "../../errors/AppError"
@@ -36,8 +36,8 @@ export class TicketService {
     }
 
     // função para listar todos os tickets, usando função do repository
-    async getAllTickets(): Promise<TicketRecord[]> {
-        return this.ticketRepository.listAll()
+    async getAllTickets(query: ListTicketsQuery): Promise<PaginatedTicketsResponse> {
+        return this.ticketRepository.listAll(query)
     }
 
     // função para mostrar um ticket específico, usando função do repository e verificando se o ticket existe

@@ -26,3 +26,12 @@ export const updateTicketStatusSchema = z.object({
 export const assignTicketSchema = z.object({
     assignedToId: z.string().trim().min(1, "assignedToId é obrigatório")
 })
+
+export const listTicketsQuerySchema = z.object({
+    status: ticketStatusSchema.optional(),
+    priority: ticketPrioritySchema.optional(),
+    createdById: z.string().trim().min(1).optional(),
+    assignedToId: z.string().trim().min(1).optional(),
+    page: z.coerce.number().int().positive().default(1),
+    limit: z.coerce.number().int().positive().max(100).default(10)
+})

@@ -121,6 +121,32 @@ components:
           type: string
           format: date-time
 
+    PaginationMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 10
+        total:
+          type: integer
+          example: 35
+        totalPages:
+          type: integer
+          example: 4
+
+    PaginatedTicketsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Ticket"
+        meta:
+          $ref: "#/components/schemas/PaginationMeta"
+
     Comment:
       type: object
       properties:
@@ -404,18 +430,60 @@ paths:
     get:
       tags:
         - Tickets
-      summary: Lista tickets
+      summary: Lista tickets com filtros e paginação
       security:
         - bearerAuth: []
+      parameters:
+        - in: query
+          name: status
+          required: false
+          schema:
+            $ref: "#/components/schemas/TicketStatus"
+          description: Filtra tickets por status
+        - in: query
+          name: priority
+          required: false
+          schema:
+            $ref: "#/components/schemas/TicketPriority"
+          description: Filtra tickets por prioridade
+        - in: query
+          name: createdById
+          required: false
+          schema:
+            type: string
+          description: Filtra tickets pelo usuário criador
+        - in: query
+          name: assignedToId
+          required: false
+          schema:
+            type: string
+          description: Filtra tickets pelo usuário responsável
+        - in: query
+          name: page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Página que será retornada
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          description: Quantidade de tickets por página
       responses:
         "200":
-          description: Lista de tickets
+          description: Lista paginada de tickets
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Ticket"
+                $ref: "#/components/schemas/PaginatedTicketsResponse"
+        "400":
+          description: Query params inválidos
         "401":
           description: Token não enviado ou inválido
 

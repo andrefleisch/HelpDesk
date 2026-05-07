@@ -1,5 +1,5 @@
 import {prisma} from "../../prisma/client"
-import type {AssignTicketBody, CreateTicketBody, UpdateTicketPriorityBody, UpdateTicketStatusBody, TicketRecord} from "./ticket.types"
+import type {AssignTicketBody, CreateTicketBody, UpdateTicketPriorityBody, UpdateTicketStatusBody, TicketRecord, ListTicketsQuery, PaginatedTicketsResponse} from "./ticket.types"
 
 export class TicketRepository {
     // cria um novo ticket usando função do prisma
@@ -18,13 +18,42 @@ export class TicketRepository {
     }
 
     // função get para mostrar todas as intâncias ordenadas por data de criação
-    async listAll (): Promise<TicketRecord[]> {
-        const tickets = await prisma.ticket.findMany({
-            orderBy: {
-                createdAt: "desc"
+    async listAll(query: ListTicketsQuery): Promise<PaginatedTicketsResponse> {
+        // monta os filtros que serão usados na busca dos tickets
+        const where = {
+            status: query.status,
+            priority: query.priority,
+            createdById: query.createdById,
+            assignedToId: query.assignedToId
+        }
+
+        // calcula quantos registros devem ser pulados antes de buscar a página atual
+        const skip = (query.page - 1) * query.limit
+
+        // busca os tickets da página atual e conta o total de tickets com os mesmos filtros
+        const [tickets, total] = await Promise.all([
+            prisma.ticket.findMany({
+                where,
+                skip,
+                take: query.limit,
+                orderBy: {
+                    createdAt: "desc"
+                }
+            }),
+            prisma.ticket.count({
+                where
+            })
+        ])
+
+        return {
+            data: tickets,
+            meta: {
+                page: query.page,
+                limit: query.limit,
+                total,
+                totalPages: Math.ceil(total / query.limit)
             }
-        })
-        return tickets
+        }
     }
 
     // função get para mostrar uma intância específica usando id
@@ -78,4 +107,6 @@ export class TicketRepository {
         })
         return ticket
     }
+
+
 }

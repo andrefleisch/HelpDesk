@@ -1,4 +1,4 @@
-import { assignTicketSchema, createTicketSchema, ticketParamsSchema, updateTicketPrioritySchema, updateTicketStatusSchema } from "./ticket.schema"
+import { assignTicketSchema, createTicketSchema, listTicketsQuerySchema, ticketParamsSchema, updateTicketPrioritySchema, updateTicketStatusSchema } from "./ticket.schema"
 import { TicketService } from "./ticket.service"
 import type { Request, Response, NextFunction } from "express"
 
@@ -34,10 +34,11 @@ export class TicketController {
     }
 
     // função para listar todos os tickets, usando a função do service para obter os tickets e retornando-os na resposta
-    async findMany(_req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+    async findMany(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
         try {
-            const tickets = await this.ticketService.getAllTickets()
-
+            const query = listTicketsQuerySchema.parse(req.query)
+            const tickets = await this.ticketService.getAllTickets(query)
+            
             return res.status(200).json(tickets)
         } catch (error) {
             return next(error)

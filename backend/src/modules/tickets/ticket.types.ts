@@ -39,3 +39,26 @@ export type TicketRecord = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+// filtros aceitos na listagem de tickets
+export type ListTicketsQuery = {
+  status?: TicketStatus;
+  priority?: TicketPriority;
+  createdById?: string;
+  assignedToId?: string;
+  page: number;
+  limit: number;
+}
+// informações da paginação retornadas junto com a lista
+export type PaginationMeta = {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+}
+
+// resposta paginada da listagem de tickets
+export type PaginatedTicketsResponse = {
+  data: TicketRecord[];
+  meta: PaginationMeta;
+}

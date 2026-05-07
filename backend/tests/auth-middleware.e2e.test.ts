@@ -58,7 +58,11 @@ describe("Auth middleware HTTP", () => {
             .set("Authorization", `Bearer ${token}`)
 
         expect(response.status).toBe(200)
-        expect(Array.isArray(response.body)).toBe(true)
+        expect(Array.isArray(response.body.data)).toBe(true)
+        expect(response.body.meta).toMatchObject({
+            page: 1,
+            limit: 10
+        })
     })
 })
 
