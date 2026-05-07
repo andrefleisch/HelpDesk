@@ -107,6 +107,12 @@ A API roda por padrao em:
 http://localhost:3000
 ```
 
+A documentacao Swagger fica em:
+
+```text
+http://localhost:3000/docs
+```
+
 ## Scripts
 
 ```bash
@@ -184,6 +190,14 @@ ADMIN
 Administrador. Pode gerenciar usuarios e tambem executar acoes de atendimento.
 
 ## Endpoints
+
+### Docs
+
+```http
+GET /docs
+```
+
+Abre a documentacao visual da API com Swagger.
 
 ### Health
 

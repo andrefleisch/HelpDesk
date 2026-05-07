@@ -1,0 +1,635 @@
+openapi: 3.0.3
+
+info:
+  title: HelpDesk API
+  version: 1.0.0
+  description: API para autenticação, usuários, tickets e comentários de um sistema de Help Desk.
+
+servers:
+  - url: http://localhost:3000
+    description: Servidor local
+
+tags:
+  - name: Health
+    description: Verificação da API
+  - name: Auth
+    description: Registro e login
+  - name: Users
+    description: Gerenciamento de usuários
+  - name: Tickets
+    description: Gerenciamento de tickets
+  - name: Comments
+    description: Comentários em tickets
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Erro esperado da aplicação
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Dados de entrada inválidos
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+    UserRole:
+      type: string
+      enum:
+        - USER
+        - AGENT
+        - ADMIN
+
+    TicketStatus:
+      type: string
+      enum:
+        - OPEN
+        - IN_PROGRESS
+        - RESOLVED
+
+    TicketPriority:
+      type: string
+      enum:
+        - LOW
+        - MEDIUM
+        - HIGH
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: cmorh0b9c0000yd0ije5mn9oz
+        name:
+          type: string
+          example: Admin HelpDesk
+        email:
+          type: string
+          example: admin@helpdesk.com
+        role:
+          $ref: "#/components/schemas/UserRole"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Ticket:
+      type: object
+      properties:
+        id:
+          type: string
+          example: ticket-id
+        title:
+          type: string
+          example: Problema no notebook
+        description:
+          type: string
+          example: Notebook não liga
+        status:
+          $ref: "#/components/schemas/TicketStatus"
+        priority:
+          $ref: "#/components/schemas/TicketPriority"
+        createdById:
+          type: string
+          example: user-id
+        assignedToId:
+          type: string
+          nullable: true
+          example: agent-id
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Comment:
+      type: object
+      properties:
+        id:
+          type: string
+          example: comment-id
+        content:
+          type: string
+          example: Comentário sobre o andamento do ticket.
+        ticketId:
+          type: string
+          example: ticket-id
+        authorId:
+          type: string
+          example: user-id
+        createdAt:
+          type: string
+          format: date-time
+
+    RegisterRequest:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        name:
+          type: string
+          example: Usuário Teste
+        email:
+          type: string
+          example: user@email.com
+        password:
+          type: string
+          example: user123
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          example: admin@helpdesk.com
+        password:
+          type: string
+          example: admin123
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: jwt-token
+        user:
+          $ref: "#/components/schemas/User"
+
+    CreateUserRequest:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        name:
+          type: string
+          example: Agente HelpDesk
+        email:
+          type: string
+          example: agent@helpdesk.com
+        password:
+          type: string
+          example: agent123
+        role:
+          $ref: "#/components/schemas/UserRole"
+
+    CreateTicketRequest:
+      type: object
+      required:
+        - title
+        - description
+        - priority
+      properties:
+        title:
+          type: string
+          example: Problema no notebook
+        description:
+          type: string
+          example: Notebook não liga
+        priority:
+          $ref: "#/components/schemas/TicketPriority"
+        assignedToId:
+          type: string
+          nullable: true
+          example: agent-id
+
+    UpdateTicketStatusRequest:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          $ref: "#/components/schemas/TicketStatus"
+
+    UpdateTicketPriorityRequest:
+      type: object
+      required:
+        - priority
+      properties:
+        priority:
+          $ref: "#/components/schemas/TicketPriority"
+
+    AssignTicketRequest:
+      type: object
+      required:
+        - assignedToId
+      properties:
+        assignedToId:
+          type: string
+          example: agent-id
+
+    CreateCommentRequest:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+          example: Comentário sobre o andamento do ticket.
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Verifica se a API está funcionando
+      responses:
+        "200":
+          description: API funcionando
+
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Registra um usuário comum
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: Usuário registrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "409":
+          description: Email já cadastrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Faz login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login realizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "401":
+          description: Email ou senha inválidos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Lista usuários
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Lista de usuários
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "401":
+          description: Token não enviado ou inválido
+        "403":
+          description: Usuário não autorizado
+
+    post:
+      tags:
+        - Users
+      summary: Cria usuário como admin
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserRequest"
+      responses:
+        "201":
+          description: Usuário criado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: Dados inválidos
+        "401":
+          description: Token não enviado ou inválido
+        "403":
+          description: Usuário não autorizado
+        "409":
+          description: Email já cadastrado
+
+  /users/{id}:
+    get:
+      tags:
+        - Users
+      summary: Busca usuário por id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Usuário encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Token não enviado ou inválido
+        "403":
+          description: Usuário não autorizado
+        "404":
+          description: Usuário não encontrado
+
+  /tickets:
+    get:
+      tags:
+        - Tickets
+      summary: Lista tickets
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Lista de tickets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Ticket"
+        "401":
+          description: Token não enviado ou inválido
+
+    post:
+      tags:
+        - Tickets
+      summary: Cria ticket
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTicketRequest"
+      responses:
+        "201":
+          description: Ticket criado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ticket"
+        "400":
+          description: Dados inválidos
+        "401":
+          description: Token não enviado ou inválido
+        "404":
+          description: Usuário criador ou atribuído não encontrado
+
+  /tickets/{id}:
+    get:
+      tags:
+        - Tickets
+      summary: Busca ticket por id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Ticket encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ticket"
+        "401":
+          description: Token não enviado ou inválido
+        "404":
+          description: Ticket não encontrado
+
+  /tickets/{id}/status:
+    patch:
+      tags:
+        - Tickets
+      summary: Atualiza status do ticket
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTicketStatusRequest"
+      responses:
+        "200":
+          description: Status atualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ticket"
+        "400":
+          description: Dados inválidos
+        "401":
+          description: Token não enviado ou inválido
+        "403":
+          description: Usuário não autorizado
+        "404":
+          description: Ticket não encontrado
+
+  /tickets/{id}/priority:
+    patch:
+      tags:
+        - Tickets
+      summary: Atualiza prioridade do ticket
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTicketPriorityRequest"
+      responses:
+        "200":
+          description: Prioridade atualizada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ticket"
+        "400":
+          description: Dados inválidos
+        "401":
+          description: Token não enviado ou inválido
+        "403":
+          description: Usuário não autorizado
+        "404":
+          description: Ticket não encontrado
+
+  /tickets/{id}/assign:
+    patch:
+      tags:
+        - Tickets
+      summary: Atribui responsável ao ticket
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssignTicketRequest"
+      responses:
+        "200":
+          description: Responsável atribuído
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ticket"
+        "400":
+          description: Dados inválidos
+        "401":
+          description: Token não enviado ou inválido
+        "403":
+          description: Usuário não autorizado
+        "404":
+          description: Ticket ou usuário não encontrado
+
+  /comments/{ticketId}/comments:
+    get:
+      tags:
+        - Comments
+      summary: Lista comentários de um ticket
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: ticketId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Lista de comentários
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Comment"
+        "401":
+          description: Token não enviado ou inválido
+        "404":
+          description: Ticket não encontrado
+
+    post:
+      tags:
+        - Comments
+      summary: Cria comentário em um ticket
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: ticketId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCommentRequest"
+      responses:
+        "201":
+          description: Comentário criado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+        "400":
+          description: Dados inválidos
+        "401":
+          description: Token não enviado ou inválido
+        "404":
+          description: Ticket ou usuário autor não encontrado
