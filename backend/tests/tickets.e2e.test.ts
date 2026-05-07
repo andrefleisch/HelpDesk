@@ -4,6 +4,7 @@ import {app} from "../src/app"
 import {prisma} from "../src/prisma/client"
 import type {UserRole} from "../src/modules/users/user.types"
 
+
 // função para criar usuário de teste direto no banco antes de chamar as rotas
 async function createTestUser(role: UserRole, email: string) {
     return prisma.user.create({
@@ -31,11 +32,12 @@ function generateTestToken(user: Awaited<ReturnType<typeof createTestUser>>) {
 }
 
 // função para criar ticket direto no banco antes de testar rotas de busca e atualização
-async function createTestTicket(createdById: string) {
+async function createTestTicket(createdById: string, status: "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CANCELED" = "OPEN") {
     return prisma.ticket.create({
         data: {
             title: "Ticket de teste",
             description: "Ticket criado para teste automatizado",
+            status,
             priority: "MEDIUM",
             createdById
         }
@@ -277,6 +279,132 @@ describe("Tickets HTTP", () => {
         expect(response.status).toBe(404)
         expect(response.body).toEqual({
             message: "Usuário atribuído ao ticket não encontrado"
+        })
+    })
+
+    it("deve permitir usuário cancelar ticket criado por ele", async () => {
+        const user = await createTestUser("USER", "test-ticket-cancel-owner@email.com")
+        const ticket = await createTestTicket(user.id)
+        const token = generateTestToken(user)
+
+        const response = await request(app)
+            .patch(`/tickets/${ticket.id}/cancel`)
+            .set("Authorization", `Bearer ${token}`)
+        
+        expect(response.status).toBe(200)
+        expect(response.body).toMatchObject({
+            id: ticket.id,
+            status: "CANCELED",
+            createdById: user.id
+        })
+    })
+
+    it("deve permitir agente cancelar qualquer ticket", async () => {
+        const user = await createTestUser("USER", "test-ticket-cancel-user@email.com")
+        const ticket = await createTestTicket(user.id)
+        const agent = await createTestUser("AGENT", "test-ticket-cancel-agent@email.com")
+        const token = generateTestToken(agent)
+
+        const response = await request(app)
+            .patch(`/tickets/${ticket.id}/cancel`)
+            .set("Authorization", `Bearer ${token}`)
+
+        expect(response.status).toBe(200)
+        expect(response.body).toMatchObject({
+            id: ticket.id,
+            status: "CANCELED",
+            createdById: user.id
+        })
+    })
+
+    it("deve permitir admin cancelar qualquer ticket", async () => {
+        const user = await createTestUser("USER", "test-ticket-cancel-admin-user@email.com")
+        const ticket = await createTestTicket(user.id)
+        const admin = await createTestUser("ADMIN", "test-ticket-cancel-admin@email.com")
+        const token = generateTestToken(admin)
+
+        const response = await request(app)
+            .patch(`/tickets/${ticket.id}/cancel`)
+            .set("Authorization", `Bearer ${token}`)
+
+        expect(response.status).toBe(200)
+        expect(response.body).toMatchObject({
+            id: ticket.id,
+            status: "CANCELED",
+            createdById: user.id
+        })
+    })
+
+    it("deve bloquear usuário tentando cancelar ticket de outro usuário", async () => {
+        const owner = await createTestUser("USER", "test-ticket-cancel-owner-other@email.com")
+        const anotherUser = await createTestUser("USER", "test-ticket-cancel-another-user@email.com")
+        const ticket = await createTestTicket(owner.id)
+        const token = generateTestToken(anotherUser)
+
+        const response = await request(app)
+            .patch(`/tickets/${ticket.id}/cancel`)
+            .set("Authorization", `Bearer ${token}`)
+
+        expect(response.status).toBe(403)
+        expect(response.body).toEqual({
+            message: "Usuário não autorizado"
+        })
+    })
+
+    it("deve retornar 404 ao cancelar ticket inexistente", async () => {
+        const user = await createTestUser("USER", "test-ticket-cancel-not-found@email.com")
+        const token = generateTestToken(user)
+
+        const response = await request(app)
+            .patch("/tickets/ticket-inexistente/cancel")
+            .set("Authorization", `Bearer ${token}`)
+
+        expect(response.status).toBe(404)
+        expect(response.body).toEqual({
+            message: "Ticket não encontrado"
+        })
+    })
+
+    it("deve retornar 409 ao cancelar ticket resolvido", async () => {
+        const user = await createTestUser("USER", "test-ticket-cancel-resolved@email.com")
+        const ticket = await createTestTicket(user.id, "RESOLVED")
+        const token = generateTestToken(user)
+
+        const response = await request(app)
+            .patch(`/tickets/${ticket.id}/cancel`)
+            .set("Authorization", `Bearer ${token}`)
+
+        expect(response.status).toBe(409)
+        expect(response.body).toEqual({
+            message: "Não pode cancelar ticket já resolvido"
+        })
+    })
+
+    it("deve retornar 409 ao cancelar ticket já cancelado", async () => {
+        const user = await createTestUser("USER", "test-ticket-cancel-already-canceled@email.com")
+        const ticket = await createTestTicket(user.id, "CANCELED")
+        const token = generateTestToken(user)
+
+        const response = await request(app)
+            .patch(`/tickets/${ticket.id}/cancel`)
+            .set("Authorization", `Bearer ${token}`)
+
+        expect(response.status).toBe(409)
+        expect(response.body).toEqual({
+            message: "Não pode cancelar ticket já cancelado"
+        })
+    })
+
+    it("deve bloquear cancelamento sem token", async () => {
+        const user = await createTestUser("USER", "test-ticket-cancel-no-token@email.com")
+        const ticket = await createTestTicket(user.id)
+
+        const response = await request(app)
+            .patch(`/tickets/${ticket.id}/cancel`)
+
+        expect(response.status).toBe(401)
+        expect(response.body).toEqual({
+            message: "Token não enviado"
         })
     })
 })

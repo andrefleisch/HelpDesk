@@ -13,6 +13,7 @@ ticketRoutes.post("/", (req, res, next) => ticketController.create(req, res, nex
 ticketRoutes.get("/", (req, res, next) => ticketController.findMany(req, res, next))
 ticketRoutes.get("/:id", (req, res, next) => ticketController.findById(req, res, next))
 ticketRoutes.patch("/:id/status", roleMiddleware(["AGENT", "ADMIN"]), (req, res, next) => ticketController.updateStatus(req, res, next))
+ticketRoutes.patch("/:id/cancel", (req, res, next) => ticketController.cancel(req, res, next))
 ticketRoutes.patch("/:id/priority", roleMiddleware(["AGENT", "ADMIN"]), (req, res, next) => ticketController.updatePriority(req, res, next))
 ticketRoutes.patch("/:id/assign", roleMiddleware(["AGENT", "ADMIN"]), (req, res, next) => ticketController.assignResponsible(req, res, next))
 

@@ -1,5 +1,5 @@
 // tipos possíveis de status e prioridade dos tickets
-export type TicketStatus = "OPEN" | "IN_PROGRESS" | "RESOLVED";
+export type TicketStatus = "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CANCELED";
 
 export type TicketPriority = "LOW" | "MEDIUM" | "HIGH";
 

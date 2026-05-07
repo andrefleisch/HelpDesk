@@ -2,6 +2,7 @@ import type {AssignTicketBody, CreateTicketBody, TicketRecord, UpdateTicketPrior
 import {TicketRepository} from "./ticket.repository"
 import {prisma} from "../../prisma/client"
 import {AppError} from "../../errors/AppError"
+import type {UserRole} from "../users/user.types"
 
 export class TicketService {
     // service deve usar repository
@@ -89,5 +90,28 @@ export class TicketService {
         }
 
         return this.ticketRepository.assignResponsible(id, data)
+    }
+
+    // função para cancelar um ticket, verificando se o ticket existe, se ainda pode ser cancelado e se o usuário comum é o dono do ticket
+    async cancelTicket(id: string, userId: string, userRole: UserRole): Promise<TicketRecord> {
+        const existingTicket = await this.ticketRepository.findById(id)
+
+        if (!existingTicket) {
+            throw new AppError("Ticket não encontrado", 404)
+        }
+
+        if (existingTicket.status === "RESOLVED") {
+            throw new AppError("Não pode cancelar ticket já resolvido", 409)
+        }
+
+        if (existingTicket.status === "CANCELED") {
+            throw new AppError("Não pode cancelar ticket já cancelado", 409)
+        }
+
+        if (userRole === "USER" && existingTicket.createdById !== userId) {
+            throw new AppError("Usuário não autorizado", 403)
+        }
+
+        return this.ticketRepository.cancel(id)
     }
 }

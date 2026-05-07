@@ -1,6 +1,6 @@
 import {z} from "zod"
 
-export const ticketStatusSchema = z.enum(["OPEN", "IN_PROGRESS", "RESOLVED"])
+export const ticketStatusSchema = z.enum(["OPEN", "IN_PROGRESS", "RESOLVED", "CANCELED"])
 
 export const ticketPrioritySchema = z.enum(["LOW", "MEDIUM", "HIGH"])
 

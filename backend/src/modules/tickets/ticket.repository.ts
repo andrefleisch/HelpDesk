@@ -67,4 +67,15 @@ export class TicketRepository {
         })
         return ticket
     }
+
+    // função para cancelar um ticket, atualizando o status para CANCELED
+    async cancel(id: string): Promise<TicketRecord> {
+        const ticket = await prisma.ticket.update({
+            where: {id},
+            data: {
+                status: "CANCELED"
+            }
+        })
+        return ticket
+    }
 }

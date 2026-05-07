@@ -96,4 +96,22 @@ export class TicketController {
             return next(error)
         }
     }
+
+    // função para cancelar um ticket, validando o id e usando o usuário autenticado para aplicar a regra de permissão no service
+    async cancel(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+        try {
+            const params = ticketParamsSchema.parse(req.params)
+
+            if (!req.user) {
+                return res.status(401).json({
+                    message: "Usuário não autenticado"
+                })
+            }
+
+            const ticket = await this.ticketService.cancelTicket(params.id, req.user.id, req.user.role)
+            return res.status(200).json(ticket)
+        } catch (error) {
+            return next(error)
+        }
+    }
 }
