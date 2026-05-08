@@ -37,7 +37,14 @@ export class TicketController {
     async findMany(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
         try {
             const query = listTicketsQuerySchema.parse(req.query)
-            const tickets = await this.ticketService.getAllTickets(query)
+
+            if (!req.user) {
+                return res.status(401).json({
+                    message: "Usuário não autenticado"
+                })
+            }
+
+            const tickets = await this.ticketService.getAllTickets(query, req.user.id, req.user.role)
             
             return res.status(200).json(tickets)
         } catch (error) {

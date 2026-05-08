@@ -1,6 +1,9 @@
 // tipos possíveis de status e prioridade dos tickets
 export type TicketStatus = "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CANCELED";
 
+// status que podem ser alterados pela rota genérica de atualização de status
+export type UpdatableTicketStatus = Exclude<TicketStatus, "CANCELED">;
+
 export type TicketPriority = "LOW" | "MEDIUM" | "HIGH";
 
 // criar ticket
@@ -14,7 +17,7 @@ export type CreateTicketBody = {
 
 // atualizar status do ticket
 export type UpdateTicketStatusBody = {
-  status: TicketStatus;
+  status: UpdatableTicketStatus;
 };
 
 // atualizar prioridade do ticket

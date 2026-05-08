@@ -4,6 +4,7 @@ import {AuthRepository} from "./auth.repository"
 import type {AuthUserResponse, LoginInput, LoginResponse, RegisterInput} from "./auth.types"
 import type {CreateUserInput, UserRecord} from "../users/user.types"
 import { AppError } from "../../errors/AppError"
+import { getAuthSecret } from "../../config/auth"
 
 export class AuthService {
     // service deve usar repository
@@ -28,7 +29,7 @@ export class AuthService {
 
     // função para criar o token JWT usando os dados do usuário autenticado
     private generateToken(user: UserRecord): string {
-        const secret = process.env.AUTH_SECRET || "dev-auth-secret"
+        const secret = getAuthSecret()
         
         return jwt.sign({
             email: user.email,

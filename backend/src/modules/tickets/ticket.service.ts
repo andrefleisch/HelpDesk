@@ -35,9 +35,18 @@ export class TicketService {
         return this.ticketRepository.create(data)
     }
 
-    // função para listar todos os tickets, usando função do repository
-    async getAllTickets(query: ListTicketsQuery): Promise<PaginatedTicketsResponse> {
-        return this.ticketRepository.listAll(query)
+    // função para listar tickets, limitando usuário comum aos próprios tickets e liberando agente/admin para consultar todos
+    async getAllTickets(query: ListTicketsQuery, userId: string, userRole: UserRole): Promise<PaginatedTicketsResponse> {
+        let safeQuery = query
+
+        if (userRole === "USER") {
+            safeQuery = {
+                ...query,
+                createdById: userId
+            }
+        }
+
+        return this.ticketRepository.listAll(safeQuery)
     }
 
     // função para mostrar um ticket específico, usando função do repository e verificando se o ticket existe

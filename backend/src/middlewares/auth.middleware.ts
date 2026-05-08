@@ -1,6 +1,7 @@
 import type {Request, Response, NextFunction} from "express"
 import jwt from "jsonwebtoken"
 import type {UserRole} from "../modules/users/user.types"
+import { getAuthSecret } from "../config/auth"
 
 // dados do usuário autenticado que serão salvos na requisição
 type AuthenticatedUser = {
@@ -12,6 +13,9 @@ type AuthenticatedUser = {
 
 // middleware para proteger rotas, verificando se o token JWT enviado pelo cliente é válido
 export function authMiddleware(req: Request, res: Response, next: NextFunction) {
+    // pega o secret usado para validar a assinatura do token
+    const secret = getAuthSecret()
+
     try {
         // pega o token enviado no header Authorization
         const authHeader = req.headers.authorization
@@ -32,9 +36,6 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
                 message: "Formato do token inválido"
             })
         }
-
-        // pega o secret usado para validar a assinatura do token
-        const secret = process.env.AUTH_SECRET || "dev-auth-secret"
 
         // verifica se o token é válido, se não foi alterado e se ainda não expirou
         const decoded = jwt.verify(token, secret)

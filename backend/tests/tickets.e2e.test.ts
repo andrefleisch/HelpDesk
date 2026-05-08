@@ -130,6 +130,24 @@ describe("Tickets HTTP", () => {
         expect(response.body.meta.totalPages).toBeGreaterThanOrEqual(1)
     })
 
+    it("deve listar apenas tickets do próprio usuário comum", async () => {
+        const user = await createTestUser("USER", "test-ticket-list-owner@email.com")
+        const anotherUser = await createTestUser("USER", "test-ticket-list-another-owner@email.com")
+        const token = generateTestToken(user)
+        const ownTicket = await createTestTicket(user.id)
+        const anotherTicket = await createTestTicket(anotherUser.id)
+
+        const response = await request(app)
+            .get(`/tickets?createdById=${anotherUser.id}`)
+            .set("Authorization", `Bearer ${token}`)
+
+        expect(response.status).toBe(200)
+        expect(response.body.data).toHaveLength(1)
+        expect(response.body.data[0].id).toBe(ownTicket.id)
+        expect(response.body.data[0].id).not.toBe(anotherTicket.id)
+        expect(response.body.meta.total).toBe(1)
+    })
+
     it("deve filtrar tickets por status e prioridade", async () => {
         const user = await createTestUser("USER", "test-ticket-filter@email.com")
         const token = generateTestToken(user)
@@ -279,6 +297,24 @@ describe("Tickets HTTP", () => {
         expect(response.body).toEqual({
             message: "Ticket não encontrado"
         })
+    })
+
+    it("deve bloquear CANCELED na rota genérica de atualização de status", async () => {
+        const user = await createTestUser("USER", "test-ticket-owner-status-canceled@email.com")
+        const agent = await createTestUser("AGENT", "test-ticket-agent-status-canceled@email.com")
+        const token = generateTestToken(agent)
+        const ticket = await createTestTicket(user.id)
+
+        const response = await request(app)
+            .patch(`/tickets/${ticket.id}/status`)
+            .set("Authorization", `Bearer ${token}`)
+            .send({
+                status: "CANCELED"
+            })
+
+        expect(response.status).toBe(400)
+        expect(response.body.message).toBe("Dados de entrada inválidos")
+        expect(response.body.errors).toHaveProperty("status")
     })
 
     it("deve permitir agente atualizar prioridade do ticket", async () => {

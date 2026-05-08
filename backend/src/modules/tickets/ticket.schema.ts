@@ -2,6 +2,8 @@ import {z} from "zod"
 
 export const ticketStatusSchema = z.enum(["OPEN", "IN_PROGRESS", "RESOLVED", "CANCELED"])
 
+export const updatableTicketStatusSchema = z.enum(["OPEN", "IN_PROGRESS", "RESOLVED"])
+
 export const ticketPrioritySchema = z.enum(["LOW", "MEDIUM", "HIGH"])
 
 export const createTicketSchema = z.object({
@@ -20,7 +22,7 @@ export const updateTicketPrioritySchema = z.object({
 })
 
 export const updateTicketStatusSchema = z.object({
-    status: ticketStatusSchema
+    status: updatableTicketStatusSchema
 })
 
 export const assignTicketSchema = z.object({
