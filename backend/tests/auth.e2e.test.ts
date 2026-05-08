@@ -70,6 +70,37 @@ describe("Auth HTTP", () => {
         expect(response.body.user.passwordHash).toBeUndefined()
     })
 
+    it("deve retornar o usuário autenticado na rota me", async () => {
+        const registerResponse = await request(app)
+            .post("/auth/register")
+            .send({
+                name: "Test Auth Me",
+                email: "test-auth-me@email.com",
+                password: "user123"
+            })
+
+        const response = await request(app)
+            .get("/auth/me")
+            .set("Authorization", `Bearer ${registerResponse.body.token}`)
+
+        expect(response.status).toBe(200)
+        expect(response.body).toEqual({
+            id: registerResponse.body.user.id,
+            name: "Test Auth Me",
+            email: "test-auth-me@email.com",
+            role: "USER"
+        })
+    })
+
+    it("deve bloquear rota me sem token", async () => {
+        const response = await request(app).get("/auth/me")
+
+        expect(response.status).toBe(401)
+        expect(response.body).toEqual({
+            message: "Token não enviado"
+        })
+    })
+
     it("deve bloquear login com senha incorreta", async () => {
         await request(app)
             .post("/auth/register")

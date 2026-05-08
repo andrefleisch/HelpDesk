@@ -358,6 +358,28 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /auth/me:
+    get:
+      tags:
+        - Auth
+      summary: Retorna o usuário autenticado
+      description: Usa o token JWT enviado no header Authorization para retornar os dados do usuário logado.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Usuário autenticado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Token não enviado ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /users:
     get:
       tags:

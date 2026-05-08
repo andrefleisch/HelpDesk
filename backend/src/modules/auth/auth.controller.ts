@@ -34,4 +34,15 @@ export class AuthController {
             return next(error)
         }
     }
+
+    // função para retornar os dados do usuário autenticado usando as informações salvas pelo authMiddleware
+    async me(req: Request, res: Response): Promise<Response> {
+        if (!req.user) {
+            return res.status(401).json({
+                message: "Usuário não autenticado"
+            })
+        }
+
+        return res.status(200).json(req.user)
+    }
 }
