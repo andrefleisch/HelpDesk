@@ -107,6 +107,4 @@ export class TicketRepository {
         })
         return ticket
     }
-
-
 }
