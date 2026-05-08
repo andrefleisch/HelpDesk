@@ -230,6 +230,22 @@ describe("Tickets HTTP", () => {
         })
     })
 
+    it("deve bloquear usuário comum tentando buscar ticket de outro usuário por id", async () => {
+        const owner = await createTestUser("USER", "test-ticket-find-owner@email.com")
+        const anotherUser = await createTestUser("USER", "test-ticket-find-another-user@email.com")
+        const token = generateTestToken(anotherUser)
+        const ticket = await createTestTicket(owner.id)
+
+        const response = await request(app)
+            .get(`/tickets/${ticket.id}`)
+            .set("Authorization", `Bearer ${token}`)
+
+        expect(response.status).toBe(403)
+        expect(response.body).toEqual({
+            message: "Usuário não autorizado"
+        })
+    })
+
     it("deve retornar 404 ao buscar ticket inexistente", async () => {
         const user = await createTestUser("USER", "test-ticket-not-found@email.com")
         const token = generateTestToken(user)

@@ -82,6 +82,25 @@ describe("Comments HTTP", () => {
         expect(response.body.authorId).not.toBe(anotherUser.id)
     })
 
+    it("deve bloquear usuário comum tentando comentar em ticket de outro usuário", async () => {
+        const owner = await createTestUser("USER", "test-comments-owner-other-ticket@email.com")
+        const anotherUser = await createTestUser("USER", "test-comments-author-other-ticket@email.com")
+        const token = generateTestToken(anotherUser)
+        const ticket = await createTestTicket(owner.id)
+
+        const response = await request(app)
+            .post(`/comments/${ticket.id}/comments`)
+            .set("Authorization", `Bearer ${token}`)
+            .send({
+                content: "Comentário em ticket de outro usuário"
+            })
+
+        expect(response.status).toBe(403)
+        expect(response.body).toEqual({
+            message: "Usuário não autorizado"
+        })
+    })
+
     it("deve bloquear criação de comentário sem token", async () => {
         const user = await createTestUser("USER", "test-comments-no-token-owner@email.com")
         const ticket = await createTestTicket(user.id)
@@ -156,6 +175,30 @@ describe("Comments HTTP", () => {
             content: "Primeiro comentário",
             ticketId: ticket.id,
             authorId: user.id
+        })
+    })
+
+    it("deve bloquear usuário comum tentando listar comentários de ticket de outro usuário", async () => {
+        const owner = await createTestUser("USER", "test-comments-list-owner-other-ticket@email.com")
+        const anotherUser = await createTestUser("USER", "test-comments-list-another-user@email.com")
+        const token = generateTestToken(anotherUser)
+        const ticket = await createTestTicket(owner.id)
+
+        await prisma.comment.create({
+            data: {
+                content: "Comentário privado",
+                ticketId: ticket.id,
+                authorId: owner.id
+            }
+        })
+
+        const response = await request(app)
+            .get(`/comments/${ticket.id}/comments`)
+            .set("Authorization", `Bearer ${token}`)
+
+        expect(response.status).toBe(403)
+        expect(response.body).toEqual({
+            message: "Usuário não autorizado"
         })
     })
 

@@ -543,6 +543,8 @@ paths:
                 $ref: "#/components/schemas/Ticket"
         "401":
           description: Token não enviado ou inválido
+        "403":
+          description: Usuário não autorizado
         "404":
           description: Ticket não encontrado
 
@@ -705,6 +707,8 @@ paths:
                   $ref: "#/components/schemas/Comment"
         "401":
           description: Token não enviado ou inválido
+        "403":
+          description: Usuário não autorizado
         "404":
           description: Ticket não encontrado
 
@@ -737,5 +741,7 @@ paths:
           description: Dados inválidos
         "401":
           description: Token não enviado ou inválido
+        "403":
+          description: Usuário não autorizado
         "404":
           description: Ticket ou usuário autor não encontrado

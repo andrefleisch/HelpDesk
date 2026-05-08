@@ -49,12 +49,16 @@ export class TicketService {
         return this.ticketRepository.listAll(safeQuery)
     }
 
-    // função para mostrar um ticket específico, usando função do repository e verificando se o ticket existe
-    async getTicketById(id: string): Promise<TicketRecord> {
+    // função para mostrar um ticket específico, verificando se ele existe e se o usuário comum é o dono do ticket
+    async getTicketById(id: string, userId: string, userRole: UserRole): Promise<TicketRecord> {
         const ticket = await this.ticketRepository.findById(id)
 
         if (!ticket) {
             throw new AppError("Ticket não encontrado", 404)
+        }
+
+        if (userRole === "USER" && ticket.createdById !== userId) {
+            throw new AppError("Usuário não autorizado", 403)
         }
 
         return ticket

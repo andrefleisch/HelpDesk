@@ -2,6 +2,7 @@ import { AppError } from "../../errors/AppError"
 import type {CreateCommentBody, CommentRecord} from "./comment.types"
 import {CommentRepository} from "./comment.repository"
 import {prisma} from "../../prisma/client"
+import type {UserRole} from "../users/user.types"
 
 export class CommentService {
     // service usa repository
@@ -12,8 +13,8 @@ export class CommentService {
         this.commentRepository = new CommentRepository()
     }
 
-    // função para criar um comentário, verificando se o usuário autor do comentário e o ticket existem antes de criar o comentário
-    async createComment( ticketId: string, data: CreateCommentBody): Promise<CommentRecord> {
+    // função para criar um comentário, verificando se o usuário autor existe, se o ticket existe e se usuário comum é dono do ticket
+    async createComment(ticketId: string, userId: string, userRole: UserRole, data: CreateCommentBody): Promise<CommentRecord> {
         const authorUser = await prisma.user.findUnique({
             where: {id: data.authorId}
         })
@@ -30,17 +31,25 @@ export class CommentService {
             throw new AppError("Ticket não encontrado", 404)
         }
 
+        if (userRole === "USER" && ticket.createdById !== userId) {
+            throw new AppError("Usuário não autorizado", 403)
+        }
+
         return this.commentRepository.create(ticketId, data)
     }
 
-    // função para listar todos os comentários de um ticket específico, usando função do repository e verificando se o ticket existe
-    async listCommentsByTicketId(ticketId: string): Promise<CommentRecord[]> {
+    // função para listar todos os comentários de um ticket específico, verificando se o ticket existe e se usuário comum é dono do ticket
+    async listCommentsByTicketId(ticketId: string, userId: string, userRole: UserRole): Promise<CommentRecord[]> {
         const ticket = await prisma.ticket.findUnique({
             where: {id: ticketId}
         })
 
         if (!ticket) {
             throw new AppError("Ticket não encontrado", 404)
+        }
+
+        if (userRole === "USER" && ticket.createdById !== userId) {
+            throw new AppError("Usuário não autorizado", 403)
         }
 
         return this.commentRepository.listAll(ticketId)
