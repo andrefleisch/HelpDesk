@@ -2,6 +2,8 @@
 
 Backend de um sistema de Help Desk para cadastro de usuarios, autenticacao, abertura de tickets, comentarios e controle de atendimento por papeis.
 
+![Backend CI](https://github.com/andrefleisch/HelpDesk/actions/workflows/backend-ci.yml/badge.svg)
+
 ## Stack
 
 - Node.js
@@ -12,17 +14,29 @@ Backend de um sistema de Help Desk para cadastro de usuarios, autenticacao, aber
 - Zod
 - JWT
 - bcryptjs
+- Jest
+- Supertest
+- OpenAPI/Swagger
+- GitHub Actions
 
 ## Funcionalidades
 
 - Registro e login de usuarios.
+- Rota para consultar usuario autenticado (`GET /auth/me`).
 - Autenticacao com JWT.
 - Autorizacao por papeis (`USER`, `AGENT`, `ADMIN`).
-- Criacao e listagem de tickets.
+- Protecao contra acesso direto indevido a tickets de outros usuarios.
+- Criacao, busca e listagem de tickets.
+- Filtros e paginacao na listagem de tickets.
 - Atualizacao de status, prioridade e responsavel do ticket por agente ou admin.
+- Cancelamento de ticket com regras de permissao.
 - Criacao e listagem de comentarios em tickets.
 - Gerenciamento de usuarios por admin.
+- Validacao de entrada com Zod.
 - Tratamento global de erros com `AppError` e middleware de erro.
+- Documentacao da API com OpenAPI/Swagger.
+- Testes e2e com Jest e Supertest.
+- CI com GitHub Actions.
 - Seed para criar o primeiro usuario admin.
 
 ## Estrutura do backend
@@ -44,7 +58,7 @@ backend/src
 O fluxo principal segue a separacao:
 
 ```text
-routes -> middlewares -> controllers -> services -> repositories -> Prisma -> PostgreSQL
+routes -> middlewares -> controllers -> schemas -> services -> repositories -> Prisma -> PostgreSQL
 ```
 
 ## Requisitos
@@ -240,6 +254,12 @@ Body:
 }
 ```
 
+```http
+GET /auth/me
+```
+
+Retorna o usuario autenticado usando o token JWT enviado no header `Authorization`.
+
 ### Users
 
 Todas as rotas de users exigem `ADMIN`.
@@ -281,7 +301,18 @@ Todas as rotas de tickets exigem usuario autenticado.
 GET /tickets
 ```
 
-Lista tickets.
+Lista tickets com filtros e paginacao.
+
+Query params opcionais:
+
+```text
+status
+priority
+createdById
+assignedToId
+page
+limit
+```
 
 ```http
 GET /tickets/:id
@@ -319,6 +350,21 @@ Body:
 }
 ```
 
+O status `CANCELED` nao e aceito nessa rota. Cancelamento tem rota propria para aplicar regras especificas.
+
+```http
+PATCH /tickets/:id/cancel
+```
+
+Cancela ticket.
+
+Regras:
+
+- `USER` pode cancelar apenas tickets criados por ele.
+- `AGENT` e `ADMIN` podem cancelar qualquer ticket.
+- ticket resolvido nao pode ser cancelado.
+- ticket ja cancelado nao pode ser cancelado novamente.
+
 ```http
 PATCH /tickets/:id/priority
 ```
@@ -350,6 +396,10 @@ Body:
 ### Comments
 
 Todas as rotas de comments exigem usuario autenticado.
+
+Usuarios comuns so podem criar e listar comentarios de tickets criados por eles.
+
+Agentes e admins podem acessar comentarios de qualquer ticket.
 
 ```http
 POST /comments/:ticketId/comments
@@ -403,6 +453,24 @@ Atualizar status do ticket:
 curl -X PATCH http://localhost:3000/tickets/ID_DO_TICKET/status -H "Content-Type: application/json" -H "Authorization: Bearer TOKEN_AGENT" -d '{"status":"IN_PROGRESS"}'
 ```
 
+Consultar usuario autenticado:
+
+```bash
+curl http://localhost:3000/auth/me -H "Authorization: Bearer TOKEN"
+```
+
+Listar tickets com filtros e paginacao:
+
+```bash
+curl "http://localhost:3000/tickets?status=OPEN&page=1&limit=10" -H "Authorization: Bearer TOKEN"
+```
+
+Cancelar ticket:
+
+```bash
+curl -X PATCH http://localhost:3000/tickets/ID_DO_TICKET/cancel -H "Authorization: Bearer TOKEN"
+```
+
 ## Tratamento de erros
 
 O projeto usa:
@@ -424,11 +492,12 @@ Exemplos:
 
 ## Status do projeto
 
-Backend funcional com autenticacao, autorizacao, tickets, comentarios e gerenciamento de usuarios.
+Backend MVP funcional com autenticacao, autorizacao, tickets, comentarios, gerenciamento de usuarios, validacao, tratamento de erros, documentacao, testes e CI.
 
 Proximos passos possiveis:
 
-- adicionar testes automatizados;
-- melhorar filtros e paginacao;
 - criar frontend;
-- adicionar documentacao OpenAPI/Swagger.
+- decidir estrategia de deploy;
+- melhorar empacotamento da documentacao Swagger para producao;
+- adicionar logs estruturados;
+- adicionar refresh token.
