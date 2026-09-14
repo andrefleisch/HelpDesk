@@ -1,50 +1,124 @@
-# React + TypeScript + Vite
+# HelpDesk Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Interface web do sistema HelpDesk, integrada a API REST do projeto.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React
+- TypeScript
+- React Router
+- Axios
+- Bootstrap
+- Vite
 
-## Expanding the ESLint configuration
+## Funcionalidades atuais
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- Login com email e senha.
+- Persistencia do token JWT no navegador.
+- Recuperacao do usuario autenticado com `GET /auth/me`.
+- Protecao de rotas para usuarios autenticados.
+- Dashboard com dados do usuario.
+- Listagem e criacao de tickets.
+- Visualizacao dos detalhes de um ticket.
+- Criacao e listagem de comentarios.
+- Atualizacao de status e prioridade por agente ou administrador.
 
-- Configure the top-level `parserOptions` property like this:
+## Organizacao
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```text
+src/
+  contexts/   estado global de autenticacao
+  pages/      telas da aplicacao
+  routes/     protecao de rotas
+  services/   chamadas HTTP com Axios
+  types/      contratos TypeScript da API
+  App.tsx     declaracao das rotas
+  main.tsx    inicializacao do React
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+As paginas nao fazem requisicoes diretamente. Elas chamam funcoes da camada de `services`, que usa a instancia compartilhada do Axios. Um interceptor adiciona o token ao header `Authorization` das requisicoes protegidas.
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+```text
+pagina -> service -> Axios/interceptor -> backend
 ```
+
+## Requisitos
+
+- Node.js
+- npm
+- Backend do HelpDesk rodando
+
+## Variavel de ambiente
+
+Crie um arquivo `.env` dentro de `frontend`:
+
+```env
+VITE_API_URL=http://localhost:3000
+```
+
+Se essa variavel nao for definida, a aplicacao usa `http://localhost:3000` como API.
+
+## Como executar
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Abra no navegador:
+
+```text
+http://localhost:5173
+```
+
+O backend deve estar rodando em outro terminal. Consulte o README da raiz para configurar PostgreSQL, migrations e seed.
+
+## Scripts
+
+```bash
+npm run dev
+```
+
+Inicia o servidor de desenvolvimento.
+
+```bash
+npm run build
+```
+
+Valida o TypeScript e gera a versao de producao.
+
+```bash
+npm run lint
+```
+
+Verifica problemas de qualidade e padronizacao no codigo.
+
+```bash
+npm run preview
+```
+
+Executa localmente a versao gerada pelo build.
+
+## Autenticacao
+
+Depois do login, o backend devolve `token` e `user` no body da resposta. O frontend salva o token em `localStorage` com a chave `helpdesk.token`.
+
+Antes de uma chamada HTTP, o interceptor recupera esse token e adiciona:
+
+```http
+Authorization: Bearer TOKEN
+```
+
+Ao recarregar a pagina, o `AuthProvider` usa o token salvo para consultar `/auth/me`. Se o token for invalido ou estiver expirado, a sessao local e removida.
+
+## Usuario de desenvolvimento
+
+Depois de executar o seed do backend:
+
+```text
+email: admin@helpdesk.com
+senha: admin123
+```
+
+Essas credenciais sao destinadas somente ao ambiente local de desenvolvimento.

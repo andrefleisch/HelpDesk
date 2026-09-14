@@ -1,6 +1,6 @@
-# HelpDesk API
+# HelpDesk
 
-Backend de um sistema de Help Desk para cadastro de usuarios, autenticacao, abertura de tickets, comentarios e controle de atendimento por papeis.
+Sistema fullstack de Help Desk para cadastro de usuarios, autenticacao, abertura de tickets, comentarios e controle de atendimento por papeis.
 
 ![Backend CI](https://github.com/andrefleisch/HelpDesk/actions/workflows/backend-ci.yml/badge.svg)
 
@@ -18,6 +18,11 @@ Backend de um sistema de Help Desk para cadastro de usuarios, autenticacao, aber
 - Supertest
 - OpenAPI/Swagger
 - GitHub Actions
+- React
+- React Router
+- Axios
+- Bootstrap
+- Vite
 
 ## Funcionalidades
 
@@ -38,6 +43,9 @@ Backend de um sistema de Help Desk para cadastro de usuarios, autenticacao, aber
 - Testes e2e com Jest e Supertest.
 - CI com GitHub Actions.
 - Seed para criar o primeiro usuario admin.
+- Interface web para login, dashboard e gerenciamento de tickets.
+- Persistencia da sessao no navegador e recuperacao do usuario autenticado.
+- Integracao do frontend com as rotas protegidas da API.
 
 ## Estrutura do backend
 
@@ -61,11 +69,37 @@ O fluxo principal segue a separacao:
 routes -> middlewares -> controllers -> schemas -> services -> repositories -> Prisma -> PostgreSQL
 ```
 
+## Estrutura do frontend
+
+```text
+frontend/src
+  contexts/
+  pages/
+  routes/
+  services/
+  types/
+  App.tsx
+  main.tsx
+```
+
+O frontend separa as responsabilidades da seguinte forma:
+
+```text
+pages -> services -> Axios -> API REST
+```
+
+- `pages`: telas e interacoes do usuario.
+- `services`: chamadas HTTP para o backend.
+- `types`: contratos TypeScript dos dados enviados e recebidos.
+- `contexts`: estado global de autenticacao.
+- `routes`: protecao e organizacao da navegacao.
+
 ## Requisitos
 
 - Node.js
 - PostgreSQL
 - npm
+- Navegador moderno
 
 ## Variaveis de ambiente
 
@@ -125,6 +159,26 @@ A documentacao Swagger fica em:
 
 ```text
 http://localhost:3000/docs
+```
+
+Em outro terminal, instale e inicie o frontend:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+O frontend roda por padrao em:
+
+```text
+http://localhost:5173
+```
+
+Para apontar o frontend para outra API, crie `frontend/.env` com:
+
+```env
+VITE_API_URL=http://localhost:3000
 ```
 
 ## Scripts
@@ -494,9 +548,14 @@ Exemplos:
 
 Backend MVP funcional com autenticacao, autorizacao, tickets, comentarios, gerenciamento de usuarios, validacao, tratamento de erros, documentacao, testes e CI.
 
+Frontend em desenvolvimento com login, sessao autenticada, rotas protegidas, dashboard, listagem e criacao de tickets, detalhes, comentarios e controles de atendimento por papel.
+
 Proximos passos possiveis:
 
-- criar frontend;
+- concluir o gerenciamento de usuarios no frontend;
+- adicionar filtros e paginacao na interface;
+- adicionar testes automatizados e CI do frontend;
+- melhorar a navegacao e o acabamento visual;
 - decidir estrategia de deploy;
 - melhorar empacotamento da documentacao Swagger para producao;
 - adicionar logs estruturados;
