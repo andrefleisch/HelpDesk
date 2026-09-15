@@ -15,3 +15,23 @@ api.interceptors.request.use((config) => {
 
   return config
 })
+
+// depois de cada resposta com erro, verifica se a sessão autenticada deixou de ser válida
+api.interceptors.response.use(
+  (response) => {
+    return response
+  },
+  (error) => {
+    const token = localStorage.getItem("helpdesk.token")
+    const isLoginRequest = error.config?.url === "/auth/login"
+
+    // remove o token expirado e reinicia a aplicação na tela de login
+    if (error.response?.status === 401 && token && !isLoginRequest) {
+      localStorage.removeItem("helpdesk.token")
+      window.location.assign("/login")
+    }
+
+    // mantém o erro rejeitado para que o catch de quem fez a requisição também possa tratá-lo
+    return Promise.reject(error)
+  },
+)
