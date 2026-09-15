@@ -8,7 +8,7 @@ export function DashboardPage() {
     <main className="container py-4">
       <section className="card dashboard-hero rounded-4">
         <div className="card-body p-4 p-md-5">
-          <p className="text-white-50 mb-2">Usuario autenticado</p>
+          <p className="dashboard-hero-context mb-2">Usuario autenticado</p>
           <h1 className="display-6 fw-bold mb-3">Bem-vindo, {user?.name}</h1>
           <p className="lead mb-0">
             O frontend fez login, salvou o token, chamou <code>/auth/me</code> e renderizou esta
