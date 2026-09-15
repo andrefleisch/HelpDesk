@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { createTicket, getTickets } from "../services/ticketService";
 import type { ListTicketsQuery, PaginationMeta, Ticket, TicketPriority, TicketStatus } from "../types/ticket";
+import { TICKET_PRIORITY_LABELS, TICKET_STATUS_LABELS } from "../constants/domainLabels";
 
 const PAGE_SIZE = 10
 
@@ -29,7 +30,7 @@ export function TicketsPage() {
             setTickets(response.data)
             setMeta(response.meta)
         } catch {
-            setError("Nao foi possivel carregar os tickets")
+            setError("Não foi possível carregar os tickets. Verifique sua conexão e tente novamente.")
         } finally {
             setLoading(false)
         }
@@ -70,7 +71,7 @@ export function TicketsPage() {
                 setPage(1)
             }
         } catch {
-            setCreateError("Não foi possível criar o ticket")
+            setCreateError("Não foi possível criar o ticket. Revise os dados e tente novamente.")
         } finally {
             setCreating(false)
         }
@@ -78,6 +79,18 @@ export function TicketsPage() {
 
     let content
     let createErrorContent = null
+    const hasActiveFilters = statusFilter !== "" || priorityFilter !== ""
+    const totalTickets = meta?.total ?? tickets.length
+    let emptyTicketsMessage = "Nenhum ticket cadastrado. Crie o primeiro ticket acima."
+    let totalTicketsMessage = `${totalTickets} tickets encontrados`
+
+    if (hasActiveFilters) {
+        emptyTicketsMessage = "Nenhum ticket corresponde aos filtros selecionados."
+    }
+
+    if (totalTickets === 1) {
+        totalTicketsMessage = "1 ticket encontrado"
+    }
 
     if (createError) {
         createErrorContent = (
@@ -98,7 +111,7 @@ export function TicketsPage() {
     } else if (tickets.length === 0) {
         content = (
             <div className="alert alert-info" role="alert">
-                Nenhum ticket encontrado.
+                {emptyTicketsMessage}
             </div>
         )
     } else {
@@ -106,14 +119,14 @@ export function TicketsPage() {
             <div className="card shadow-sm">
                 <div className="card-body">
                     <p>
-                        Total de tickets: {meta?.total ?? tickets.length}
+                        {totalTicketsMessage}
                     </p>
 
                     <div className="table-responsive">
                         <table className="table table-hover align-middle">
                             <thead>
                                 <tr>
-                                    <th>Titulo</th>
+                                    <th>Título</th>
                                     <th>Status</th>
                                     <th>Prioridade</th>
                                     <th>Criado em</th>
@@ -128,8 +141,8 @@ export function TicketsPage() {
                                                 {ticket.title}
                                             </Link>
                                         </td>
-                                        <td>{ticket.status}</td>
-                                        <td>{ticket.priority}</td>
+                                        <td>{TICKET_STATUS_LABELS[ticket.status]}</td>
+                                        <td>{TICKET_PRIORITY_LABELS[ticket.priority]}</td>
                                         <td>{new Date(ticket.createdAt).toLocaleDateString("pt-BR")}</td>
                                     </tr>
                                 ))}
@@ -153,7 +166,7 @@ export function TicketsPage() {
 
                     <div className="mb-3">
                         <label className="form-label" htmlFor="title">
-                            Titulo
+                            Título
                         </label>
                         <input
                             className="form-control"
@@ -166,7 +179,7 @@ export function TicketsPage() {
 
                     <div className="mb-3">
                         <label className="form-label" htmlFor="description">
-                            Descricao
+                            Descrição
                         </label>
                         <textarea
                             className="form-control"
@@ -187,9 +200,9 @@ export function TicketsPage() {
                             value={priority}
                             onChange={(event) => setPriority(event.target.value as TicketPriority)}
                         >
-                            <option value="LOW">LOW</option>
-                            <option value="MEDIUM">MEDIUM</option>
-                            <option value="HIGH">HIGH</option>
+                            <option value="LOW">{TICKET_PRIORITY_LABELS.LOW}</option>
+                            <option value="MEDIUM">{TICKET_PRIORITY_LABELS.MEDIUM}</option>
+                            <option value="HIGH">{TICKET_PRIORITY_LABELS.HIGH}</option>
                         </select>
                     </div>
 
@@ -216,10 +229,10 @@ export function TicketsPage() {
                                 }}
                             >
                                 <option value="">Todos</option>
-                                <option value="OPEN">Aberto</option>
-                                <option value="IN_PROGRESS">Em progresso</option>
-                                <option value="RESOLVED">Resolvido</option>
-                                <option value="CANCELED">Cancelado</option>
+                                <option value="OPEN">{TICKET_STATUS_LABELS.OPEN}</option>
+                                <option value="IN_PROGRESS">{TICKET_STATUS_LABELS.IN_PROGRESS}</option>
+                                <option value="RESOLVED">{TICKET_STATUS_LABELS.RESOLVED}</option>
+                                <option value="CANCELED">{TICKET_STATUS_LABELS.CANCELED}</option>
                             </select>
                         </div>
 
@@ -237,9 +250,9 @@ export function TicketsPage() {
                                 }}
                             >
                                 <option value="">Todas</option>
-                                <option value="LOW">Baixa</option>
-                                <option value="MEDIUM">Média</option>
-                                <option value="HIGH">Alta</option>
+                                <option value="LOW">{TICKET_PRIORITY_LABELS.LOW}</option>
+                                <option value="MEDIUM">{TICKET_PRIORITY_LABELS.MEDIUM}</option>
+                                <option value="HIGH">{TICKET_PRIORITY_LABELS.HIGH}</option>
                             </select>
                         </div>
 

@@ -31,9 +31,9 @@ export function LoginPage() {
     } catch (error) {
       if (error instanceof AxiosError) {
         const responseData = error.response?.data as ApiErrorResponse | undefined
-        setError(responseData?.message ?? "Nao foi possivel fazer login")
+        setError(responseData?.message ?? "Não foi possível fazer login. Verifique sua conexão e tente novamente.")
       } else {
-        setError("Nao foi possivel fazer login")
+        setError("Não foi possível fazer login. Verifique sua conexão e tente novamente.")
       }
     } finally {
       setSubmitting(false)

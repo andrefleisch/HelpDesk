@@ -1,8 +1,14 @@
 import { NavLink, Outlet } from "react-router-dom"
 import { useAuth } from "../contexts/authContext"
+import { USER_ROLE_LABELS } from "../constants/domainLabels"
 
 export function AppLayout() {
   const { user, logout } = useAuth()
+  let userRoleContent = null
+
+  if (user) {
+    userRoleContent = <span className="badge text-bg-primary">{USER_ROLE_LABELS[user.role]}</span>
+  }
 
   function getNavLinkClass({ isActive }: { isActive: boolean }) {
     if (isActive) {
@@ -30,7 +36,7 @@ export function AppLayout() {
           </div>
 
           <div className="ms-auto d-flex align-items-center gap-3">
-            <span className="badge text-bg-primary">{user?.role}</span>
+            {userRoleContent}
             <button className="btn btn-outline-secondary btn-sm" type="button" onClick={logout}>
               Sair
             </button>
