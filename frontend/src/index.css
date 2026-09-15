@@ -54,3 +54,27 @@ body {
   border: 0;
   box-shadow: 0 1rem 2rem rgba(31, 41, 55, 0.08);
 }
+
+.navbar .nav-link {
+  border-radius: 0.75rem;
+  color: #52606d;
+  padding-inline: 0.75rem;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link.active {
+  background: #e8f1ff;
+  color: #0d6efd;
+}
+
+@media (max-width: 767.98px) {
+  .navbar {
+    gap: 0.75rem;
+  }
+
+  .navbar-nav {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+  }
+}

@@ -10,8 +10,8 @@ type ApiErrorResponse = {
 export function LoginPage() {
   const navigate = useNavigate()
   const { user, login } = useAuth()
-  const [email, setEmail] = useState("admin@helpdesk.com")
-  const [password, setPassword] = useState("admin123")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [submitting, setSubmitting] = useState(false)
 
@@ -48,7 +48,7 @@ export function LoginPage() {
             <span className="brand-mark mb-3">HD</span>
             <h1 className="h3 mb-2">Entrar no HelpDesk</h1>
             <p className="text-secondary mb-0">
-              Use o usuario admin criado pelo seed para testar o fluxo completo de autenticacao.
+              Acesse sua conta para acompanhar e gerenciar atendimentos.
             </p>
           </div>
 

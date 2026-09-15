@@ -1,21 +1,12 @@
+import { Link } from "react-router-dom"
 import { useAuth } from "../contexts/authContext"
 
 export function DashboardPage() {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
 
   return (
     <main className="container py-4">
-      <nav className="navbar navbar-expand rounded-4 bg-white px-3 shadow-sm">
-        <span className="navbar-brand fw-bold mb-0">HelpDesk</span>
-        <div className="ms-auto d-flex align-items-center gap-3">
-          <span className="badge text-bg-primary">{user?.role}</span>
-          <button className="btn btn-outline-secondary btn-sm" type="button" onClick={logout}>
-            Sair
-          </button>
-        </div>
-      </nav>
-
-      <section className="card dashboard-hero mt-4 rounded-4">
+      <section className="card dashboard-hero rounded-4">
         <div className="card-body p-4 p-md-5">
           <p className="text-white-50 mb-2">Usuario autenticado</p>
           <h1 className="display-6 fw-bold mb-3">Bem-vindo, {user?.name}</h1>
@@ -48,8 +39,10 @@ export function DashboardPage() {
         <div className="col-md-4">
           <div className="card info-tile h-100 rounded-4">
             <div className="card-body">
-              <h2 className="h6 text-secondary">Proximo passo</h2>
-              <p className="mb-0">Listar tickets usando o token salvo.</p>
+              <h2 className="h6 text-secondary">Atendimento</h2>
+              <Link className="btn btn-primary btn-sm" to="/tickets">
+                Acessar tickets
+              </Link>
             </div>
           </div>
         </div>
