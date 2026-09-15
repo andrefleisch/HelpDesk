@@ -201,7 +201,7 @@ export function TicketDetailsPage() {
   
                     <p className="fw-semibold mb-2">Atualizar status</p>
   
-                    <div className="d-flex gap-2 mb-3">
+                    <div className="ticket-action-group d-flex gap-2 mb-3">
                         <button 
                             className="btn btn-outline-primary btn-sm"
                             type="button"
@@ -236,7 +236,7 @@ export function TicketDetailsPage() {
   
                     <p className="fw-semibold mb-2">Atualizar prioridade</p>
   
-                    <div className="d-flex gap-2 mb-3">
+                    <div className="ticket-action-group d-flex gap-2 mb-3">
                         <button 
                             className="btn btn-outline-secondary btn-sm"
                             type="button"

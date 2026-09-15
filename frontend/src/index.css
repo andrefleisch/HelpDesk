@@ -41,6 +41,7 @@ body {
 
 #root {
   min-height: 100vh;
+  padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
 }
 
 .auth-shell {
@@ -136,6 +137,26 @@ body {
 ::selection {
   background: var(--color-action);
   color: var(--color-on-action);
+}
+
+.ticket-action-group {
+  flex-wrap: wrap;
+}
+
+@media (pointer: coarse) {
+  .btn,
+  .navbar .nav-link,
+  .form-control,
+  .form-select {
+    min-height: 44px;
+  }
+
+  .btn,
+  .navbar .nav-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 767.98px) {
