@@ -5,6 +5,7 @@ import { getTicketById, updateTicketStatus, updateTicketPriority} from "../servi
 import type { Comment } from "../types/comment"
 import type { Ticket, TicketPriority, UpdatableTicketStatus } from "../types/ticket"
 import { useAuth } from "../contexts/authContext"
+import { TICKET_PRIORITY_LABELS, TICKET_STATUS_LABELS } from "../constants/domainLabels"
 
 export function TicketDetailsPage() {
     const { id } = useParams()
@@ -43,7 +44,7 @@ export function TicketDetailsPage() {
             setCommentContent("")
             await loadComments(id)
         } catch {
-            setCreateCommentError("Não foi possível criar o comentário")
+            setCreateCommentError("Não foi possível publicar o comentário. Tente novamente.")
         } finally {
             setCreatingComment(false)
         }
@@ -65,7 +66,7 @@ export function TicketDetailsPage() {
 
             setTicket(updatedTicket)
         } catch {
-            setStatusError("Não foi possível atualizar o status")
+            setStatusError("Não foi possível atualizar o status. Tente novamente.")
         } finally {
             setStatusUpdating(false)
         }
@@ -87,7 +88,7 @@ export function TicketDetailsPage() {
 
             setTicket(updatedTicket)
         } catch {
-            setPriorityError("Não foi possível atualizar a prioridade")
+            setPriorityError("Não foi possível atualizar a prioridade. Tente novamente.")
         } finally {
             setPriorityUpdating(false)
         }
@@ -102,7 +103,7 @@ export function TicketDetailsPage() {
 
             setComments(response)
         } catch {
-            setCommentsError("Não foi possível carregar os comentários")
+            setCommentsError("Não foi possível carregar os comentários. Atualize a página para tentar novamente.")
         } finally {
             setCommentsLoading(false)
         }
@@ -125,7 +126,7 @@ export function TicketDetailsPage() {
                 setTicket(response)
                 await loadComments(id)
             } catch {
-                setError("Não foi possível carregar o ticket")
+                setError("Não foi possível carregar o ticket. Volte à lista e tente novamente.")
             } finally {
                 setLoading(false)
             }
@@ -146,7 +147,7 @@ export function TicketDetailsPage() {
     }
 
     if (commentsLoading) {
-        commentsContent = <p>Carregando comentarios...</p>
+        commentsContent = <p>Carregando comentários...</p>
     } else if (commentsError) {
         commentsContent = (
             <div className="alert alert-danger" role="alert">
@@ -156,7 +157,7 @@ export function TicketDetailsPage() {
     } else if (comments.length === 0) {
         commentsContent = (
             <div className="alert alert-info" role="alert">
-                Nenhum comentário ainda.
+                Ainda não há comentários. Publique o primeiro comentário usando o campo acima.
             </div>
         )
     } else {
@@ -208,7 +209,7 @@ export function TicketDetailsPage() {
                             disabled={statusUpdating}
                             onClick={() => handleUpdateStatus("OPEN")}>
 
-                                Aberto
+                                {TICKET_STATUS_LABELS.OPEN}
                         </button>
 
                         <button 
@@ -217,7 +218,7 @@ export function TicketDetailsPage() {
                             disabled={statusUpdating}
                             onClick={() => handleUpdateStatus("IN_PROGRESS")}>
 
-                                Em Progresso
+                                {TICKET_STATUS_LABELS.IN_PROGRESS}
                         </button>
 
                         <button 
@@ -226,7 +227,7 @@ export function TicketDetailsPage() {
                             disabled={statusUpdating}
                             onClick={() => handleUpdateStatus("RESOLVED")}>
 
-                                Resolvido
+                                {TICKET_STATUS_LABELS.RESOLVED}
                         </button>
                     </div>
                 </div>
@@ -243,7 +244,7 @@ export function TicketDetailsPage() {
                             disabled={priorityUpdating}
                             onClick={() => handleUpdatePriority("LOW")}>
 
-                                Baixa
+                                {TICKET_PRIORITY_LABELS.LOW}
                         </button>
 
                         <button 
@@ -252,7 +253,7 @@ export function TicketDetailsPage() {
                             disabled={priorityUpdating}
                             onClick={() => handleUpdatePriority("MEDIUM")}>
 
-                                Média
+                                {TICKET_PRIORITY_LABELS.MEDIUM}
                         </button>
 
                         <button 
@@ -261,7 +262,7 @@ export function TicketDetailsPage() {
                             disabled={priorityUpdating}
                             onClick={() => handleUpdatePriority("HIGH")}>
 
-                                High
+                                {TICKET_PRIORITY_LABELS.HIGH}
                         </button>
                     </div>
                 </div>
@@ -292,20 +293,20 @@ export function TicketDetailsPage() {
                     <h2 className="h4">{ticket.title}</h2>
                     <p className="text-secondary">{ticket.description}</p>
 
-                    <p>Status: {ticket.status}</p>
-                    <p>Prioridade: {ticket.priority}</p>
+                    <p>Status: {TICKET_STATUS_LABELS[ticket.status]}</p>
+                    <p>Prioridade: {TICKET_PRIORITY_LABELS[ticket.priority]}</p>
                     <p>Criado em: {new Date(ticket.createdAt).toLocaleString("pt-BR")}</p>
 
                     {manageTicketContent}
 
                     <hr />
-                    <h3 className="h5">Comentarios</h3>
+                    <h3 className="h5">Comentários</h3>
 
                     <form className="mb-3" onSubmit={handleCreateComment}>
                         {createCommentErrorContent}
 
                         <label className="form-label" htmlFor="comment">
-                            Novo comentario
+                            Novo comentário
                         </label>
 
                         <textarea
