@@ -1,7 +1,9 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { createTicket, getTickets } from "../services/ticketService";
-import type { PaginationMeta, Ticket, TicketPriority } from "../types/ticket";
+import type { ListTicketsQuery, PaginationMeta, Ticket, TicketPriority, TicketStatus } from "../types/ticket";
+
+const PAGE_SIZE = 10
 
 export function TicketsPage() {
     const [tickets, setTickets] = useState<Ticket[]>([])
@@ -13,13 +15,16 @@ export function TicketsPage() {
     const [priority, setPriority] = useState<TicketPriority>("MEDIUM")
     const [creating, setCreating] = useState(false)
     const [createError, setCreateError] = useState("")
+    const [statusFilter, setStatusFilter] = useState<TicketStatus | "">("")
+    const [priorityFilter, setPriorityFilter] = useState<TicketPriority | "">("")
+    const [page, setPage] = useState(1)
 
-    async function loadTickets() {
+    async function loadTickets(query: ListTicketsQuery) {
         try {
             setLoading(true)
             setError("")
 
-            const response = await getTickets()
+            const response = await getTickets(query)
 
             setTickets(response.data)
             setMeta(response.meta)
@@ -31,8 +36,13 @@ export function TicketsPage() {
     }
 
     useEffect(() => {
-        loadTickets()
-    }, [])
+        loadTickets({
+            status: statusFilter || undefined,
+            priority: priorityFilter || undefined,
+            page,
+            limit: PAGE_SIZE
+        })
+    }, [page, priorityFilter, statusFilter])
 
     async function handleCreateTicket(event: FormEvent<HTMLFormElement>) {
         event.preventDefault()
@@ -49,7 +59,16 @@ export function TicketsPage() {
             setTitle("")
             setDescription("")
             setPriority("MEDIUM")
-            await loadTickets()
+            if (page === 1) {
+                await loadTickets({
+                    status: statusFilter || undefined,
+                    priority: priorityFilter || undefined,
+                    page: 1,
+                    limit: PAGE_SIZE
+                })
+            } else {
+                setPage(1)
+            }
         } catch {
             setCreateError("Não foi possível criar o ticket")
         } finally {
@@ -180,7 +199,92 @@ export function TicketsPage() {
                 </div>
             </form>
 
+            <section className="card shadow-sm mb-4">
+                <div className="card-body">
+                    <div className="row g-3 align-items-end">
+                        <div className="col-md-5">
+                            <label className="form-label" htmlFor="status-filter">
+                                Filtrar por status
+                            </label>
+                            <select
+                                className="form-select"
+                                id="status-filter"
+                                value={statusFilter}
+                                onChange={(event) => {
+                                    setStatusFilter(event.target.value as TicketStatus | "")
+                                    setPage(1)
+                                }}
+                            >
+                                <option value="">Todos</option>
+                                <option value="OPEN">Aberto</option>
+                                <option value="IN_PROGRESS">Em progresso</option>
+                                <option value="RESOLVED">Resolvido</option>
+                                <option value="CANCELED">Cancelado</option>
+                            </select>
+                        </div>
+
+                        <div className="col-md-5">
+                            <label className="form-label" htmlFor="priority-filter">
+                                Filtrar por prioridade
+                            </label>
+                            <select
+                                className="form-select"
+                                id="priority-filter"
+                                value={priorityFilter}
+                                onChange={(event) => {
+                                    setPriorityFilter(event.target.value as TicketPriority | "")
+                                    setPage(1)
+                                }}
+                            >
+                                <option value="">Todas</option>
+                                <option value="LOW">Baixa</option>
+                                <option value="MEDIUM">Média</option>
+                                <option value="HIGH">Alta</option>
+                            </select>
+                        </div>
+
+                        <div className="col-md-2">
+                            <button
+                                className="btn btn-outline-secondary w-100"
+                                type="button"
+                                onClick={() => {
+                                    setStatusFilter("")
+                                    setPriorityFilter("")
+                                    setPage(1)
+                                }}
+                            >
+                                Limpar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {content}
+
+            {meta && meta.totalPages > 1 && (
+                <nav className="d-flex align-items-center justify-content-center gap-3 mt-4" aria-label="Paginação de tickets">
+                    <button
+                        className="btn btn-outline-primary"
+                        type="button"
+                        disabled={loading || page <= 1}
+                        onClick={() => setPage((currentPage) => currentPage - 1)}
+                    >
+                        Anterior
+                    </button>
+                    <span>
+                        Página {meta.page} de {meta.totalPages}
+                    </span>
+                    <button
+                        className="btn btn-outline-primary"
+                        type="button"
+                        disabled={loading || page >= meta.totalPages}
+                        onClick={() => setPage((currentPage) => currentPage + 1)}
+                    >
+                        Próxima
+                    </button>
+                </nav>
+            )}
         </main>
     )
 }

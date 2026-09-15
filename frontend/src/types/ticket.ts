@@ -26,6 +26,13 @@ export type PaginatedTicketsResponse = {
     meta: PaginationMeta
 }
 
+export type ListTicketsQuery = {
+    status?: TicketStatus
+    priority?: TicketPriority
+    page?: number
+    limit?: number
+}
+
 export type CreateTicketRequest = {
     title: string
     description: string
