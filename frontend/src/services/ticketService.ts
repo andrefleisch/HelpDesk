@@ -1,8 +1,10 @@
 import { api } from "./api";
-import type { PaginatedTicketsResponse, CreateTicketRequest, Ticket, UpdateTicketStatusRequest, UpdateTicketPriorityRequest} from "../types/ticket";
+import type { PaginatedTicketsResponse, CreateTicketRequest, ListTicketsQuery, Ticket, UpdateTicketStatusRequest, UpdateTicketPriorityRequest} from "../types/ticket";
 
-export async function getTickets(): Promise<PaginatedTicketsResponse> {
-    const response = await api.get<PaginatedTicketsResponse>("/tickets")
+export async function getTickets(query: ListTicketsQuery = {}): Promise<PaginatedTicketsResponse> {
+    const response = await api.get<PaginatedTicketsResponse>("/tickets", {
+        params: query
+    })
 
     return response.data
 }
