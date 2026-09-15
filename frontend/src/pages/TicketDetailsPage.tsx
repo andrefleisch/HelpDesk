@@ -147,7 +147,7 @@ export function TicketDetailsPage() {
     }
 
     if (commentsLoading) {
-        commentsContent = <p>Carregando comentários...</p>
+        commentsContent = <p role="status">Carregando comentários...</p>
     } else if (commentsError) {
         commentsContent = (
             <div className="alert alert-danger" role="alert">
@@ -206,7 +206,8 @@ export function TicketDetailsPage() {
                         <button 
                             className="btn btn-outline-primary btn-sm"
                             type="button"
-                            disabled={statusUpdating}
+                            aria-pressed={ticket?.status === "OPEN"}
+                            disabled={statusUpdating || ticket?.status === "OPEN"}
                             onClick={() => handleUpdateStatus("OPEN")}>
 
                                 {TICKET_STATUS_LABELS.OPEN}
@@ -215,7 +216,8 @@ export function TicketDetailsPage() {
                         <button 
                             className="btn btn-outline-primary btn-sm"
                             type="button"
-                            disabled={statusUpdating}
+                            aria-pressed={ticket?.status === "IN_PROGRESS"}
+                            disabled={statusUpdating || ticket?.status === "IN_PROGRESS"}
                             onClick={() => handleUpdateStatus("IN_PROGRESS")}>
 
                                 {TICKET_STATUS_LABELS.IN_PROGRESS}
@@ -224,7 +226,8 @@ export function TicketDetailsPage() {
                         <button 
                             className="btn btn-outline-primary btn-sm"
                             type="button"
-                            disabled={statusUpdating}
+                            aria-pressed={ticket?.status === "RESOLVED"}
+                            disabled={statusUpdating || ticket?.status === "RESOLVED"}
                             onClick={() => handleUpdateStatus("RESOLVED")}>
 
                                 {TICKET_STATUS_LABELS.RESOLVED}
@@ -241,7 +244,8 @@ export function TicketDetailsPage() {
                         <button 
                             className="btn btn-outline-secondary btn-sm"
                             type="button"
-                            disabled={priorityUpdating}
+                            aria-pressed={ticket?.priority === "LOW"}
+                            disabled={priorityUpdating || ticket?.priority === "LOW"}
                             onClick={() => handleUpdatePriority("LOW")}>
 
                                 {TICKET_PRIORITY_LABELS.LOW}
@@ -250,7 +254,8 @@ export function TicketDetailsPage() {
                         <button 
                             className="btn btn-outline-secondary btn-sm"
                             type="button"
-                            disabled={priorityUpdating}
+                            aria-pressed={ticket?.priority === "MEDIUM"}
+                            disabled={priorityUpdating || ticket?.priority === "MEDIUM"}
                             onClick={() => handleUpdatePriority("MEDIUM")}>
 
                                 {TICKET_PRIORITY_LABELS.MEDIUM}
@@ -259,7 +264,8 @@ export function TicketDetailsPage() {
                         <button 
                             className="btn btn-outline-secondary btn-sm"
                             type="button"
-                            disabled={priorityUpdating}
+                            aria-pressed={ticket?.priority === "HIGH"}
+                            disabled={priorityUpdating || ticket?.priority === "HIGH"}
                             onClick={() => handleUpdatePriority("HIGH")}>
 
                                 {TICKET_PRIORITY_LABELS.HIGH}
@@ -273,7 +279,7 @@ export function TicketDetailsPage() {
     let content
 
     if (loading) {
-        content = <p>Carregando ticket...</p>
+        content = <p role="status">Carregando ticket...</p>
     } else if (error) {
         content = (
             <div className="alert alert-danger" role="alert">
@@ -290,17 +296,17 @@ export function TicketDetailsPage() {
         content = (
             <div className="card shadow-sm">
                 <div className="card-body">
-                    <h2 className="h4">{ticket.title}</h2>
+                    <h1 className="h4">{ticket.title}</h1>
                     <p className="text-secondary">{ticket.description}</p>
 
-                    <p>Status: {TICKET_STATUS_LABELS[ticket.status]}</p>
-                    <p>Prioridade: {TICKET_PRIORITY_LABELS[ticket.priority]}</p>
+                    <p aria-live="polite">Status: {TICKET_STATUS_LABELS[ticket.status]}</p>
+                    <p aria-live="polite">Prioridade: {TICKET_PRIORITY_LABELS[ticket.priority]}</p>
                     <p>Criado em: {new Date(ticket.createdAt).toLocaleString("pt-BR")}</p>
 
                     {manageTicketContent}
 
                     <hr />
-                    <h3 className="h5">Comentários</h3>
+                    <h2 className="h5">Comentários</h2>
 
                     <form className="mb-3" onSubmit={handleCreateComment}>
                         {createCommentErrorContent}

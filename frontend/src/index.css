@@ -9,7 +9,6 @@
   --color-action-active: #053f8c;
   --color-action-soft: #e7f0fc;
   --color-on-action: #ffffff;
-  --color-on-action-muted: #dceaff;
   --color-hero-start: #0b3b82;
   --color-hero-end: #0759c7;
   --color-focus: rgba(7, 89, 199, 0.28);
@@ -73,10 +72,6 @@ body {
   color: var(--color-on-action);
 }
 
-.dashboard-hero-context {
-  color: var(--color-on-action-muted);
-}
-
 .dashboard-hero code {
   border-radius: 0.35rem;
   background: rgba(5, 24, 49, 0.32);
@@ -137,6 +132,16 @@ body {
 ::selection {
   background: var(--color-action);
   color: var(--color-on-action);
+}
+
+.btn:focus-visible,
+.navbar .nav-link:focus-visible {
+  outline: 3px solid var(--color-action);
+  outline-offset: 2px;
+}
+
+.table {
+  font-variant-numeric: tabular-nums;
 }
 
 .ticket-action-group {

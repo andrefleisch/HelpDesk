@@ -101,7 +101,7 @@ export function TicketsPage() {
     }
 
     if (loading) {
-        content = <p>Carregando tickets...</p>
+        content = <p role="status">Carregando tickets...</p>
     } else if (error) {
         content = (
             <div className="alert alert-danger" role="alert">
