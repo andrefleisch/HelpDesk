@@ -1,6 +1,28 @@
 :root {
-  color: #1f2933;
-  background: #eef3f8;
+  --color-canvas: #f3f7fc;
+  --color-canvas-deep: #e4ecf6;
+  --color-surface: #ffffff;
+  --color-text: #17202a;
+  --color-text-muted: #52606d;
+  --color-action: #0759c7;
+  --color-action-hover: #064ba8;
+  --color-action-active: #053f8c;
+  --color-action-soft: #e7f0fc;
+  --color-on-action: #ffffff;
+  --color-on-action-muted: #dceaff;
+  --color-hero-start: #0b3b82;
+  --color-hero-end: #0759c7;
+  --color-focus: rgba(7, 89, 199, 0.28);
+  --color-shadow-strong: rgba(23, 32, 42, 0.14);
+  --color-shadow-soft: rgba(23, 32, 42, 0.08);
+  --bs-primary: var(--color-action);
+  --bs-primary-rgb: 7, 89, 199;
+  --bs-body-color: var(--color-text);
+  --bs-body-bg: var(--color-canvas);
+  --bs-link-color: var(--color-action);
+  --bs-link-hover-color: var(--color-action-hover);
+  color: var(--color-text);
+  background: var(--color-canvas);
   font-family: "Trebuchet MS", "Segoe UI", sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -13,8 +35,8 @@ body {
   min-height: 100vh;
   margin: 0;
   background:
-    radial-gradient(circle at top left, rgba(13, 110, 253, 0.16), transparent 34rem),
-    linear-gradient(135deg, #f8fbff 0%, #e7edf5 100%);
+    radial-gradient(circle at top left, rgba(7, 89, 199, 0.14), transparent 34rem),
+    linear-gradient(135deg, var(--color-surface) 0%, var(--color-canvas-deep) 100%);
 }
 
 #root {
@@ -29,7 +51,7 @@ body {
   width: 100%;
   max-width: 460px;
   border: 0;
-  box-shadow: 0 1.5rem 4rem rgba(31, 41, 55, 0.14);
+  box-shadow: 0 1.5rem 4rem var(--color-shadow-strong);
 }
 
 .brand-mark {
@@ -39,32 +61,81 @@ body {
   align-items: center;
   justify-content: center;
   border-radius: 1rem;
-  background: #0d6efd;
-  color: #fff;
+  background: var(--color-action);
+  color: var(--color-on-action);
   font-weight: 700;
 }
 
 .dashboard-hero {
   border: 0;
-  background: linear-gradient(135deg, #102a43 0%, #0d6efd 100%);
-  color: #fff;
+  background: linear-gradient(135deg, var(--color-hero-start) 0%, var(--color-hero-end) 100%);
+  color: var(--color-on-action);
+}
+
+.dashboard-hero-context {
+  color: var(--color-on-action-muted);
+}
+
+.dashboard-hero code {
+  border-radius: 0.35rem;
+  background: rgba(5, 24, 49, 0.32);
+  color: var(--color-on-action);
+  padding: 0.1em 0.35em;
 }
 
 .info-tile {
   border: 0;
-  box-shadow: 0 1rem 2rem rgba(31, 41, 55, 0.08);
+  box-shadow: 0 1rem 2rem var(--color-shadow-soft);
 }
 
 .navbar .nav-link {
   border-radius: 0.75rem;
-  color: #52606d;
+  color: var(--color-text-muted);
   padding-inline: 0.75rem;
 }
 
 .navbar .nav-link:hover,
 .navbar .nav-link.active {
-  background: #e8f1ff;
-  color: #0d6efd;
+  background: var(--color-action-soft);
+  color: var(--color-action);
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--color-action);
+  --bs-btn-border-color: var(--color-action);
+  --bs-btn-hover-bg: var(--color-action-hover);
+  --bs-btn-hover-border-color: var(--color-action-hover);
+  --bs-btn-active-bg: var(--color-action-active);
+  --bs-btn-active-border-color: var(--color-action-active);
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--color-action);
+  --bs-btn-border-color: var(--color-action);
+  --bs-btn-hover-bg: var(--color-action);
+  --bs-btn-hover-border-color: var(--color-action);
+  --bs-btn-active-bg: var(--color-action-active);
+  --bs-btn-active-border-color: var(--color-action-active);
+}
+
+.text-primary {
+  color: var(--color-action) !important;
+}
+
+.text-bg-primary {
+  background-color: var(--color-action) !important;
+  color: var(--color-on-action) !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--color-action);
+  box-shadow: 0 0 0 0.25rem var(--color-focus);
+}
+
+::selection {
+  background: var(--color-action);
+  color: var(--color-on-action);
 }
 
 @media (max-width: 767.98px) {
